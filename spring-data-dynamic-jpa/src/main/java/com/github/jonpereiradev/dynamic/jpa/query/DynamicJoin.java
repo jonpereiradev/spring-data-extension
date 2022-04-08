@@ -15,9 +15,9 @@ import java.lang.annotation.Target;
 @Repeatable(DynamicJoins.class)
 public @interface DynamicJoin {
 
-    String query() default "";
+    String query();
 
-    String named() default "";
+    String binding();
 
 
 }

@@ -1,18 +1,17 @@
 package com.github.jonpereiradev.dynamic.jpa;
 
 
-import com.github.jonpereiradev.dynamic.jpa.query.DynamicQuery;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.Query;
 
 
-public class DynamicQueryPageable {
+final class DynamicQueryPageable {
 
     private DynamicQueryPageable() {
     }
 
-    public static void setQueryPageable(Query query, DynamicQuery dynamicQuery) {
+    static void setQueryPageable(Query query, DynamicQueryParams dynamicQuery) {
         Pageable pageable = dynamicQuery.getPageable();
         int pageNumber = pageable.getPageNumber();
 

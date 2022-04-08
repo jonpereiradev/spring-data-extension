@@ -1,14 +1,12 @@
 package com.github.jonpereiradev.dynamic.jpa;
 
 
-import com.github.jonpereiradev.dynamic.jpa.matcher.DynamicQueryMatchers;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.function.Function;
 
 
-public class DynamicQueryReader {
+final class DynamicQueryReader {
 
     private DynamicQueryReader() {
     }
