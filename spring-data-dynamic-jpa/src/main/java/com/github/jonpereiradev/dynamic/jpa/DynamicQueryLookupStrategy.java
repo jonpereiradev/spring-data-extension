@@ -1,7 +1,6 @@
 package com.github.jonpereiradev.dynamic.jpa;
 
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.provider.QueryExtractor;
 import org.springframework.data.jpa.repository.query.DefaultJpaQueryMethodFactory;
 import org.springframework.data.jpa.repository.query.EscapeCharacter;
@@ -45,16 +44,18 @@ final class DynamicQueryLookupStrategy {
         private final QueryLookupStrategy queryLookupStrategy;
         private final EntityManager entityManager;
         private final QueryExtractor extractor;
+        private final DynamicJpaRepositoryValidator validator;
 
         private QueryDefLookupStrategy(QueryLookupStrategy queryLookupStrategy, EntityManager entityManager, QueryExtractor extractor) {
             this.queryLookupStrategy = queryLookupStrategy;
             this.entityManager = entityManager;
             this.extractor = extractor;
+            this.validator = new DynamicJpaRepositoryValidator();
         }
 
         @Override
         public RepositoryQuery resolveQuery(Method method, RepositoryMetadata metadata, ProjectionFactory factory, NamedQueries queries) {
-            if (isDynamicQueryMethod(method)) {
+            if (validator.isDynamicRepository(metadata.getRepositoryInterface()) && validator.isDynamicMethod(method)) {
                 return createJpaRepositoryQuery(method, metadata, factory);
             }
 
@@ -62,66 +63,16 @@ final class DynamicQueryLookupStrategy {
         }
 
         private RepositoryQuery createJpaRepositoryQuery(Method method, RepositoryMetadata metadata, ProjectionFactory factory) {
-            validateQueryMethod(method);
-
-            DynamicQueryValueFactory configurationFactory = new DynamicQueryValueFactory(metadata);
+            DynamicQueryValueFactory dynamicQueryValueFactory = new DynamicQueryValueFactory(metadata);
+            DynamicQueryValue dynamicQueryValue = dynamicQueryValueFactory.newDynamicQueryValue(method);
             JpaQueryMethod jpaQueryMethod = getJpaQueryMethod(method, metadata, factory);
-            DynamicQueryValue queryValue = configurationFactory.create(method);
 
-            return new DynamicQueryDefJpaQuery(jpaQueryMethod, entityManager, queryValue);
+            return new DynamicQueryDefJpaQuery(jpaQueryMethod, entityManager, dynamicQueryValue);
         }
 
         private JpaQueryMethod getJpaQueryMethod(Method method, RepositoryMetadata metadata, ProjectionFactory factory) {
             return new DefaultJpaQueryMethodFactory(extractor).build(method, metadata, factory);
         }
 
-        private void validateQueryMethod(Method method) {
-            Class<?>[] parameters = method.getParameterTypes();
-
-            if (parameters.length == 0 || parameters.length > 2
-                || isInvalidParameterClass(parameters, DynamicQueryParams.class)
-                || isInvalidParameterClass(parameters, DynamicQueryParams.class, Pageable.class)
-            ) {
-                throw new IllegalArgumentException("Method " + method + " must have only one parameter of type DynamicQuery");
-            }
-        }
-
-        private boolean isInvalidParameterClass(Class<?>[] classes, Class<?>... validClasses) {
-            if (validClasses.length != classes.length) {
-                return false;
-            }
-
-            boolean isAnyClass = true;
-
-            for (int i = 0; i < classes.length; i++) {
-                if (!classes[i].equals(validClasses[i])) {
-                    isAnyClass = false;
-                    break;
-                }
-            }
-
-            return !isAnyClass;
-        }
-
-        private boolean isDynamicQueryMethod(Method method) {
-            Class<?>[] parameters = method.getParameterTypes();
-
-            if (parameters.length == 1 && parameters[0].equals(DynamicQueryParams.class)) {
-                return true;
-            }
-
-            if (parameters.length == 2) {
-                for (Class<?> parameter : parameters) {
-                    if (!parameter.isAssignableFrom(DynamicQueryParams.class) || !parameter.isAssignableFrom(Pageable.class)) {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            return false;
-        }
     }
-
 }

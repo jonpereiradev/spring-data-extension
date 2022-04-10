@@ -15,12 +15,22 @@ final class QueryExpressionImpl implements QueryExpression {
     private final String binding;
     private final String expression;
     private final Function<Object, ?> matcher;
+    private final boolean feature;
 
     QueryExpressionImpl(String key, String expression, Function<Object, ?> matcher) {
         this.key = key;
         this.binding = key.substring(key.indexOf(".") + 1);
         this.expression = expression;
         this.matcher = matcher;
+        this.feature = false;
+    }
+
+    QueryExpressionImpl(String key, String expression, boolean feature) {
+        this.key = key;
+        this.binding = key.substring(key.indexOf(".") + 1);
+        this.expression = expression;
+        this.matcher = DynamicQueryMatchers::toBoolean;
+        this.feature = feature;
     }
 
     @Override
@@ -36,6 +46,11 @@ final class QueryExpressionImpl implements QueryExpression {
     @Override
     public String getExpression() {
         return expression;
+    }
+
+    @Override
+    public boolean isFeature() {
+        return feature;
     }
 
     @Override

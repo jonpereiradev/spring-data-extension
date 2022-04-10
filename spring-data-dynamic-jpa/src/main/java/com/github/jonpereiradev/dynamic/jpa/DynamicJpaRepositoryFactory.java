@@ -30,11 +30,13 @@ final class DynamicJpaRepositoryFactory<T, ID extends Serializable> extends JpaR
     private final EntityManager entityManager;
     private final PersistenceProvider provider;
     private final EscapeCharacter escapeCharacter = EscapeCharacter.DEFAULT;
+    private final DynamicJpaRepositoryValidator validator;
 
     DynamicJpaRepositoryFactory(EntityManager entityManager) {
         super(entityManager);
         this.entityManager = entityManager;
         this.provider = PersistenceProvider.fromEntityManager(entityManager);
+        this.validator = new DynamicJpaRepositoryValidator();
     }
 
     @Override
@@ -45,7 +47,7 @@ final class DynamicJpaRepositoryFactory<T, ID extends Serializable> extends JpaR
 
     @Override
     protected Class<?> getRepositoryBaseClass(RepositoryMetadata metadata) {
-        if (isDynamicJpaRepository(metadata.getRepositoryInterface())) {
+        if (validator.isDynamicRepository(metadata.getRepositoryInterface())) {
             return DynamicJpaRepositoryImpl.class;
         }
 
@@ -54,22 +56,12 @@ final class DynamicJpaRepositoryFactory<T, ID extends Serializable> extends JpaR
 
     @Override
     protected JpaRepositoryImplementation<T, ID> getTargetRepository(RepositoryInformation information, EntityManager entityManager) {
-        if (isDynamicJpaRepository(information.getRepositoryInterface())) {
+        if (validator.isDynamicRepository(information.getRepositoryInterface())) {
             logger.info("Configuring Dynamic Jpa Repository for " + information.getRepositoryInterface().getName());
             return createDynamicJpaRepository(information, entityManager);
         }
 
         return createJpaRepository(information, entityManager);
-    }
-
-    private boolean isDynamicJpaRepository(Class<?> repositoryInterface) {
-        for (Class<?> anInterface : repositoryInterface.getInterfaces()) {
-            if (anInterface.equals(DynamicJpaRepository.class)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     @SuppressWarnings("unchecked")
@@ -80,7 +72,7 @@ final class DynamicJpaRepositoryFactory<T, ID extends Serializable> extends JpaR
     @SuppressWarnings("unchecked")
     private JpaRepositoryImplementation<T, ID> createDynamicJpaRepository(RepositoryInformation information, EntityManager entityManager) {
         DynamicQueryValueFactory dynamicQueryFactory = new DynamicQueryValueFactory(information);
-        DynamicQueryValue dynamicQueryValue = dynamicQueryFactory.create();
+        DynamicQueryValue dynamicQueryValue = dynamicQueryFactory.newDynamicQueryValue();
 
         return new DynamicJpaRepositoryImpl<>((Class<T>) information.getDomainType(), entityManager, dynamicQueryValue);
     }

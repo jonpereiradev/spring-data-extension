@@ -144,12 +144,12 @@ final class DynamicJpaRepositoryImpl<T, ID extends Serializable> extends SimpleJ
     }
 
     public String createQuery(DynamicQueryParams dynamicQuery, String prefix) {
-        DynamicQueryBuilder queryBuilder = new DynamicQueryBuilder(queryRef);
+        DynamicQueryBuilderImpl queryBuilder = new DynamicQueryBuilderImpl(queryRef);
         return queryBuilder.select().join(dynamicQuery).where(dynamicQuery, prefix).sorted(dynamicQuery).query();
     }
 
     public String createCountQuery(DynamicQueryParams dynamicQuery, String prefix) {
-        DynamicQueryBuilder queryBuilder = new DynamicQueryBuilder(queryRef);
+        DynamicQueryBuilderImpl queryBuilder = new DynamicQueryBuilderImpl(queryRef);
         return queryBuilder.count().join(dynamicQuery).where(dynamicQuery, prefix).query();
     }
 

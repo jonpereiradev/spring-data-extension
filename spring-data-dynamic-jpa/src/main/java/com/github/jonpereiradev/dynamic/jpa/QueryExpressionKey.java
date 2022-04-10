@@ -1,6 +1,6 @@
 package com.github.jonpereiradev.dynamic.jpa;
 
-final class QueryExpressionKey {
+public final class QueryExpressionKey {
 
     private final String prefix;
     private final String key;

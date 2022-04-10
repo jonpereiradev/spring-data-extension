@@ -40,6 +40,10 @@ public interface DynamicQueryParams {
 
     Integer getInteger(String name, Integer defaultValue);
 
+    Boolean getBoolean(String name);
+
+    Boolean getBoolean(String name, Boolean defaultValue);
+
     LocalDate getLocalDate(String name);
 
     LocalDate getLocalDate(String name, LocalDate defaultValue);

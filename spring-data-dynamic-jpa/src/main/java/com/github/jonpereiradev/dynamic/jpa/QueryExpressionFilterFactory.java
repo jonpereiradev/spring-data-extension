@@ -44,15 +44,9 @@ final class QueryExpressionFilterFactory implements QueryExpressionFactory {
         Set<QueryExpression> expressions = new LinkedHashSet<>();
 
         if (method.isAnnotationPresent(DynamicFilters.class) || method.isAnnotationPresent(DynamicFilter.class)) {
+            QueryExpression queryExpression;
+
             for (DynamicFilter annotation : method.getAnnotationsByType(DynamicFilter.class)) {
-                Function<Object, ?> matcher;
-
-                if (annotation.type().equals(DynamicFilter.AutoDetectType.class)) {
-                    matcher = value -> DynamicQueryMatchers.autodetect(entityClass, value);
-                } else {
-                    matcher = value -> DynamicQueryMatchers.from(annotation.type(), value);
-                }
-
                 String name = createName(annotation);
                 String query = annotation.query();
 
@@ -60,7 +54,20 @@ final class QueryExpressionFilterFactory implements QueryExpressionFactory {
                     query = "and " + query.trim();
                 }
 
-                QueryExpression queryExpression = QueryExpression.newExpression(method.getName(), name, query, matcher);
+                if (annotation.type().equals(DynamicFilter.Feature.class)) {
+                    queryExpression = QueryExpression.newFeature(method.getName(), name, query);
+                } else {
+                    Function<Object, ?> matcher;
+
+                    if (annotation.type().equals(DynamicFilter.AutoDetectType.class)) {
+                        matcher = value -> DynamicQueryMatchers.autodetect(entityClass, value);
+                    } else {
+                        matcher = value -> DynamicQueryMatchers.from(annotation.type(), value);
+                    }
+
+                    queryExpression = QueryExpression.newExpression(method.getName(), name, query, matcher);
+                }
+
                 expressions.add(queryExpression);
             }
         }
@@ -69,18 +76,23 @@ final class QueryExpressionFilterFactory implements QueryExpressionFactory {
     }
 
     private void readReflectionFilters(Set<QueryExpression> expressions, Class<?> entityClass) {
+        String alias;
+        String query;
+        String name;
+        Function<Object, Object> matcher;
+
         for (Field field : entityClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(Column.class)) {
-                String alias = this.entityClass.getSimpleName().toLowerCase();
-                String query = "and " + alias + "." + field.getName() + " = :" + field.getName();
-                String name = createName(query);
-                Function<Object, Object> matcher = value -> DynamicQueryMatchers.from(field.getType(), value);
+                alias = this.entityClass.getSimpleName().toLowerCase();
+                query = "and " + alias + "." + field.getName() + " = :" + field.getName();
+                name = createName(query);
+                matcher = value -> DynamicQueryMatchers.from(field.getType(), value);
                 expressions.add(QueryExpression.newGlobalExpression(name, query, matcher));
             } else if (field.isAnnotationPresent(JoinColumn.class)) {
-                String alias = this.entityClass.getSimpleName().toLowerCase();
-                String query = "and " + alias + "." + field.getName() + ".id = :" + field.getName();
-                String name = createName(query);
-                Function<Object, Object> matcher = value -> DynamicQueryMatchers.from(field.getType(), value);
+                alias = this.entityClass.getSimpleName().toLowerCase();
+                query = "and " + alias + "." + field.getName() + ".id = :" + field.getName();
+                name = createName(query);
+                matcher = value -> DynamicQueryMatchers.from(field.getType(), value);
                 expressions.add(QueryExpression.newGlobalExpression(name, query, matcher));
             }
         }
@@ -94,16 +106,24 @@ final class QueryExpressionFilterFactory implements QueryExpressionFactory {
 
     private void readRepositoryFilters(Set<QueryExpression> expressions, Class<?> repositoryInterface) {
         if (isDynamicFilter(repositoryInterface)) {
+            QueryExpression queryExpression;
+            String name;
+            String query;
+
             for (DynamicFilter annotation : repositoryInterface.getAnnotationsByType(DynamicFilter.class)) {
-                Function<Object, Object> matcher = value -> DynamicQueryMatchers.from(annotation.type(), value);
-                String name = createName(annotation);
-                String query = annotation.query();
+                name = createName(annotation);
+                query = annotation.query();
 
                 if (!query.startsWith("and")) {
                     query = "and " + query.trim();
                 }
 
-                QueryExpression queryExpression = QueryExpression.newGlobalExpression(name, query, matcher);
+                if (annotation.type().equals(DynamicFilter.Feature.class)) {
+                    queryExpression = QueryExpression.newGlobalFeature(name, query);
+                } else {
+                    Function<Object, Object> matcher = value -> DynamicQueryMatchers.from(annotation.type(), value);
+                    queryExpression = QueryExpression.newGlobalExpression(name, query, matcher);
+                }
 
                 expressions.remove(queryExpression);
                 expressions.add(queryExpression);

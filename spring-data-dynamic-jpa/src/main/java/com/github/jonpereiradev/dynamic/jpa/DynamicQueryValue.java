@@ -1,13 +1,15 @@
 package com.github.jonpereiradev.dynamic.jpa;
 
+import com.github.jonpereiradev.dynamic.jpa.internal.QueryInspect;
+
 import java.util.Optional;
 import java.util.Set;
 
-interface DynamicQueryValue {
+public interface DynamicQueryValue {
 
-    String getQuery();
+    QueryInspect getSelectQuery();
 
-    String getCountQuery();
+    QueryInspect getCountQuery();
 
     void addJoin(QueryExpression expression);
 
@@ -20,5 +22,9 @@ interface DynamicQueryValue {
     Set<QueryExpression> getJoinExpressions();
 
     Set<QueryExpression> getFilterExpressions();
+
+    Class<?> getEntityClass();
+
+    Class<?> getRepositoryInterface();
 
 }

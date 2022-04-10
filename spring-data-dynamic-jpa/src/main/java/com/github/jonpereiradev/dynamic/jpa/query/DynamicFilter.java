@@ -24,4 +24,7 @@ public @interface DynamicFilter {
     class AutoDetectType {
     }
 
+    class Feature {
+    }
+
 }

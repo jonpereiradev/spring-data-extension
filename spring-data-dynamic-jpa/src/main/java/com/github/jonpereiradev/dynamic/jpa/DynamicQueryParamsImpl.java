@@ -107,6 +107,16 @@ class DynamicQueryParamsImpl implements DynamicQueryParams {
     }
 
     @Override
+    public Boolean getBoolean(String name) {
+        return getBoolean(name, null);
+    }
+
+    @Override
+    public Boolean getBoolean(String name, Boolean defaultValue) {
+        return isPresent(name) ? DynamicQueryMatchers.toBoolean(parameters.getFirst(name)) : defaultValue;
+    }
+
+    @Override
     public LocalDate getLocalDate(String name) {
         return getLocalDate(name, null);
     }

@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 
-final class DynamicQueryBuilder {
+final class DynamicQueryBuilderImpl {
 
     private static final String BLANK_SPACE = " ";
     private static final int INITIAL_QUERY_CAPACITY = 150;
@@ -17,22 +17,22 @@ final class DynamicQueryBuilder {
     private final StringBuilder internal;
     private final DynamicQueryValue queryValue;
 
-    DynamicQueryBuilder(DynamicQueryValue queryValue) {
+    DynamicQueryBuilderImpl(DynamicQueryValue queryValue) {
         this.internal = new StringBuilder(INITIAL_QUERY_CAPACITY);
         this.queryValue = queryValue;
     }
 
-    DynamicQueryBuilder select() {
-        internal.append(queryValue.getQuery());
+    DynamicQueryBuilderImpl select() {
+        internal.append(queryValue.getSelectQuery());
         return this;
     }
 
-    DynamicQueryBuilder count() {
+    DynamicQueryBuilderImpl count() {
         internal.append(queryValue.getCountQuery());
         return this;
     }
 
-    DynamicQueryBuilder join(DynamicQueryParams dynamicQuery) {
+    DynamicQueryBuilderImpl join(DynamicQueryParams dynamicQuery) {
         dynamicQuery.getParameters().forEach((key, value) -> {
             QueryExpressionKey expressionKey = new QueryExpressionKey(key);
             Optional<QueryExpression> joinValue = queryValue.getJoinValue(expressionKey);
@@ -42,11 +42,11 @@ final class DynamicQueryBuilder {
         return this;
     }
 
-    DynamicQueryBuilder where(DynamicQueryParams dynamicQuery, JpaQueryMethod queryMethod) {
+    DynamicQueryBuilderImpl where(DynamicQueryParams dynamicQuery, JpaQueryMethod queryMethod) {
         return where(dynamicQuery, queryMethod.getName());
     }
 
-    DynamicQueryBuilder where(DynamicQueryParams dynamicQuery, String prefix) {
+    DynamicQueryBuilderImpl where(DynamicQueryParams dynamicQuery, String prefix) {
         internal.append(" where 1 = 1");
 
         dynamicQuery.getParameters().forEach((key, value) -> {
@@ -58,7 +58,7 @@ final class DynamicQueryBuilder {
         return this;
     }
 
-    DynamicQueryBuilder sorted(DynamicQueryParams dynamicQuery) {
+    DynamicQueryBuilderImpl sorted(DynamicQueryParams dynamicQuery) {
         Sort sort = dynamicQuery.getSort();
 
         if (sort != null) {
@@ -100,7 +100,7 @@ final class DynamicQueryBuilder {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        DynamicQueryBuilder that = (DynamicQueryBuilder) o;
+        DynamicQueryBuilderImpl that = (DynamicQueryBuilderImpl) o;
         return toString().equals(that.toString());
     }
 }
