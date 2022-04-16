@@ -4,7 +4,7 @@ package com.github.jonpereiradev.dynamic.jpa;
 /**
  * Utilitário para auxiliar na conversão dos objetos de um {@link java.sql.ResultSet}.
  */
-final class TypeConverter {
+public final class TypeConverter {
 
     private TypeConverter() {
         throw new UnsupportedOperationException();
@@ -13,7 +13,7 @@ final class TypeConverter {
     /**
      * @return objeto {@code query} convertido em um {@link Short}.
      */
-    static Short toShort(Object value) {
+    public static Short toShort(Object value) {
         if (value == null) {
             return null;
         }
@@ -24,7 +24,7 @@ final class TypeConverter {
     /**
      * @return objeto {@code query} convertido em um {@link Integer}.
      */
-    static Integer toInteger(Object value) {
+    public static Integer toInteger(Object value) {
         if (value == null) {
             return null;
         }
@@ -35,7 +35,7 @@ final class TypeConverter {
     /**
      * @return objeto {@code query} convertido em um {@link Long}.
      */
-    static Long toLong(Object value) {
+    public static Long toLong(Object value) {
         if (value == null) {
             return null;
         }
@@ -46,7 +46,7 @@ final class TypeConverter {
     /**
      * @return objeto {@code query} convertido em um {@link Double}.
      */
-    static Double toDouble(Object value) {
+    public static Double toDouble(Object value) {
         if (value == null) {
             return null;
         }
@@ -57,7 +57,7 @@ final class TypeConverter {
     /**
      * @return objeto {@code query} convertido em um {@link Float}.
      */
-    static Float toFloat(Object value) {
+    public static Float toFloat(Object value) {
         if (value == null) {
             return null;
         }
@@ -68,7 +68,7 @@ final class TypeConverter {
     /**
      * @return objeto {@code query} convertido em um {@link String}.
      */
-    static String toString(Object value) {
+    public static String toString(Object value) {
         if (value == null || value.toString() == null || value.toString().trim().isEmpty()) {
             return null;
         }
@@ -79,7 +79,7 @@ final class TypeConverter {
     /**
      * @return objeto {@code query} convertido em um {@link Boolean}.
      */
-    static Boolean toBoolean(Object value) {
+    public static Boolean toBoolean(Object value) {
         if (toString(value) == null) {
             return null;
         }

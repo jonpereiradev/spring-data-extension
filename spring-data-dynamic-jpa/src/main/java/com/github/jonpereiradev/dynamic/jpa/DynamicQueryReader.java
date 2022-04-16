@@ -1,6 +1,8 @@
 package com.github.jonpereiradev.dynamic.jpa;
 
 
+import com.github.jonpereiradev.dynamic.jpa.repository.DynamicQueryMatchers;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.function.Function;

@@ -1,6 +1,7 @@
 package com.github.jonpereiradev.dynamic.jpa;
 
 
+import com.github.jonpereiradev.dynamic.jpa.repository.DynamicQueryMatchers;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
