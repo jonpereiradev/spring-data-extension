@@ -13,6 +13,4 @@ public interface FromQueryBuilder {
 
     OrderQueryBuilder order();
 
-    String getQuery();
-
 }

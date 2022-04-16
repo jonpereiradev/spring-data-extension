@@ -7,9 +7,9 @@ import com.github.jonpereiradev.dynamic.jpa.internal.builder.FromQueryBuilder;
 import com.github.jonpereiradev.dynamic.jpa.internal.builder.WhereQueryBuilder;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpression;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionKey;
-import com.github.jonpereiradev.dynamic.jpa.internal.query.DynamicQuery;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspector;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorFactory;
+import com.github.jonpereiradev.dynamic.jpa.internal.query.DynamicQuery;
 import org.springframework.data.jpa.repository.query.AbstractJpaQuery;
 import org.springframework.data.jpa.repository.query.JpaParametersParameterAccessor;
 import org.springframework.data.jpa.repository.query.JpaQueryMethod;
@@ -40,21 +40,16 @@ final class DynamicQueryDefJpaQuery extends AbstractJpaQuery {
 
     @Override
     protected Query doCreateQuery(JpaParametersParameterAccessor accessor) {
-        DynamicQueryBuilder selectQueryBuilder = DynamicQueryBuilder.newInstance();
+        DynamicQueryBuilder builder = DynamicQueryBuilder.newInstance(dynamicQuery.getEntityClass());
         DynamicQueryParams params = (DynamicQueryParams) accessor.getValues()[0];
-        String aliasName = dynamicQuery.getSelectQuery().getFrom()[0].getAliasName();
-
-        FromQueryBuilder fromQueryBuilder = selectQueryBuilder
-            .select(aliasName)
-            .from(dynamicQuery.getEntityClass(), dynamicQuery.getSelectQuery())
-            .join();
+        FromQueryBuilder fromQueryBuilder = builder.select(dynamicQuery.getSelectQuery()).from().join();
 
         addDynamicJoin(params, fromQueryBuilder);
 
         WhereQueryBuilder whereQueryBuilder = fromQueryBuilder.where();
         addDynamicWhere(params, whereQueryBuilder);
 
-        String selectQuery = whereQueryBuilder.order().getQuery();
+        String selectQuery = whereQueryBuilder.order().toString();
         Query query = createQueryOf(params, selectQuery);
 
         if (params.isPageable()) {
@@ -66,21 +61,16 @@ final class DynamicQueryDefJpaQuery extends AbstractJpaQuery {
 
     @Override
     protected Query doCreateCountQuery(JpaParametersParameterAccessor accessor) {
-        DynamicQueryBuilder countQueryBuilder = DynamicQueryBuilder.newInstance();
+        DynamicQueryBuilder builder = DynamicQueryBuilder.newInstance(dynamicQuery.getEntityClass());
         DynamicQueryParams params = (DynamicQueryParams) accessor.getValues()[0];
-        String aliasName = dynamicQuery.getSelectQuery().getFrom()[0].getAliasName();
-
-        FromQueryBuilder fromQueryBuilder = countQueryBuilder
-            .count(aliasName)
-            .from(dynamicQuery.getEntityClass(), dynamicQuery.getSelectQuery())
-            .join();
+        FromQueryBuilder fromQueryBuilder = builder.count(dynamicQuery.getSelectQuery()).from().join();
 
         addDynamicJoin(params, fromQueryBuilder);
 
         WhereQueryBuilder whereQueryBuilder = fromQueryBuilder.where();
         addDynamicWhere(params, whereQueryBuilder);
 
-        String countQuery = whereQueryBuilder.order().getQuery();
+        String countQuery = whereQueryBuilder.order().toString();
         return createQueryOf(params, countQuery);
     }
 
@@ -147,15 +137,8 @@ final class DynamicQueryDefJpaQuery extends AbstractJpaQuery {
             }
 
             EntityManager validatingEm = null;
-            DynamicQueryBuilder queryBuilder = DynamicQueryBuilder.newInstance();
-
-            String selectQuery = queryBuilder
-                .select(null)
-                .from(dynamicQuery.getEntityClass(), dynamicQuery.getSelectQuery())
-                .join()
-                .where()
-                .order()
-                .getQuery();
+            DynamicQueryBuilder builder = DynamicQueryBuilder.newInstance(dynamicQuery.getEntityClass());
+            String selectQuery = builder.select(dynamicQuery.getSelectQuery()).from().join().where().order().toString();
 
             try {
                 validatingEm = getEntityManager().getEntityManagerFactory().createEntityManager();

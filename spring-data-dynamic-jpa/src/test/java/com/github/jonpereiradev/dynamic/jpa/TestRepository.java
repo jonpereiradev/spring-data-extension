@@ -13,6 +13,14 @@ public interface TestRepository extends DynamicJpaRepository<TestEntity, String>
     List<TestEntity> findAllBy(DynamicQueryParams params);
 
     @SuppressWarnings("JpaQlInspection")
+    @Query(countQuery = "select count(distinct entity.id) from TestEntity entity join entity.users user where entity.id is not null")
+    List<TestEntity> countQuery(DynamicQueryParams params);
+
+    @SuppressWarnings("JpaQlInspection")
+    @Query
+    List<TestEntity> emptyQuery(DynamicQueryParams params);
+
+    @SuppressWarnings("JpaQlInspection")
     @Query("select distinct entity from TestEntity entity join entity.users user where entity.id is not null")
     List<TestEntity> findAllBy2_Distinct(DynamicQueryParams params);
 

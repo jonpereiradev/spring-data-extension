@@ -1,14 +1,25 @@
 package com.github.jonpereiradev.dynamic.jpa.internal.builder;
 
 
+import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorResult;
+import org.springframework.data.jpa.repository.Query;
+
 public interface DynamicQueryBuilder {
 
-    SelectQueryBuilder select(String alias);
+    SelectQueryBuilder select();
 
-    SelectQueryBuilder count(String alias);
+    SelectQueryBuilder select(Query query);
 
-    static DynamicQueryBuilder newInstance() {
-        return new DynamicQueryBuilderImpl();
+    SelectQueryBuilder select(QueryInspectorResult result);
+
+    SelectQueryBuilder count();
+
+    SelectQueryBuilder count(Query query);
+
+    SelectQueryBuilder count(QueryInspectorResult result);
+
+    static DynamicQueryBuilder newInstance(Class<?> entityClass) {
+        return new DynamicQueryBuilderImpl(entityClass);
     }
 
 }

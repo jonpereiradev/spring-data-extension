@@ -48,7 +48,7 @@ public class WhereQueryBuilderImpl implements WhereQueryBuilder {
     }
 
     @Override
-    public String getQuery() {
+    public String toString() {
         return internal.toString().trim();
     }
 

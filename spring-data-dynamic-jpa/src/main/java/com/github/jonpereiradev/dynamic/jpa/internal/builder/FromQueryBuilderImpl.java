@@ -65,7 +65,7 @@ public class FromQueryBuilderImpl implements FromQueryBuilder {
     }
 
     @Override
-    public String getQuery() {
+    public String toString() {
         return internal.toString().trim();
     }
 }

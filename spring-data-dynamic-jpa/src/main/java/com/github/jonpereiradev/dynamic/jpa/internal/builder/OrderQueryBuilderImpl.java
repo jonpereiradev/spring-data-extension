@@ -23,7 +23,7 @@ public class OrderQueryBuilderImpl implements OrderQueryBuilder {
     }
 
     @Override
-    public String getQuery() {
+    public String toString() {
         return internal.toString().trim();
     }
 

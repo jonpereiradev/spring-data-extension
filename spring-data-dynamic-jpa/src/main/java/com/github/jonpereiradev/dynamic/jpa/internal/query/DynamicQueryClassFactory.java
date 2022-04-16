@@ -1,11 +1,11 @@
 package com.github.jonpereiradev.dynamic.jpa.internal.query;
 
 
+import com.github.jonpereiradev.dynamic.jpa.internal.builder.DynamicQueryBuilder;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpression;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionFilterFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionJoinFactory;
-import com.github.jonpereiradev.dynamic.jpa.internal.builder.DynamicQueryBuilder;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspector;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorFactory;
 import org.slf4j.Logger;
@@ -82,22 +82,13 @@ final class DynamicQueryClassFactory implements DynamicQueryFactory {
     }
 
     private String createSelectQuery() {
-        DynamicQueryBuilder queryBuilder = DynamicQueryBuilder.newInstance();
-        String aliasName = getEntityClass().getSimpleName().toLowerCase();
-        return queryBuilder.select(aliasName).from(getEntityClass()).getQuery();
+        DynamicQueryBuilder builder = DynamicQueryBuilder.newInstance(getEntityClass());
+        return builder.select().from().join().where().order().toString();
     }
 
     private String createCountQuery() {
-        DynamicQueryBuilder queryBuilder = DynamicQueryBuilder.newInstance();
-        String aliasName = getEntityClass().getSimpleName().toLowerCase();
-
-        return queryBuilder
-            .count(aliasName)
-            .from(getEntityClass())
-            .join()
-            .where()
-            .order()
-            .getQuery();
+        DynamicQueryBuilder builder = DynamicQueryBuilder.newInstance(getEntityClass());
+        return builder.count().from().join().where().order().toString();
     }
 
     private Class<?> getEntityClass() {

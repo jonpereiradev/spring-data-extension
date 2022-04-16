@@ -30,7 +30,7 @@ class FromQueryBuilderImplTest {
         void must_create_join_query_from_inspector() {
             result = inspector.inspect("join entity.users default");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.join().getQuery();
+            String query = fromBuilder.join().toString();
             assertEquals("join entity.users default", query);
         }
 
@@ -38,7 +38,7 @@ class FromQueryBuilderImplTest {
         void must_create_join_fetch_query_from_inspector() {
             result = inspector.inspect("join fetch entity.users default");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.join().getQuery();
+            String query = fromBuilder.join().toString();
             assertEquals("join fetch entity.users default", query);
         }
 
@@ -47,7 +47,7 @@ class FromQueryBuilderImplTest {
             expression = QueryExpression.newGlobalExpression("user", "join entity.users default");
             result = inspector.inspect("");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.join(expression).getQuery();
+            String query = fromBuilder.join(expression).toString();
             assertEquals("join entity.users default", query);
         }
 
@@ -60,7 +60,7 @@ class FromQueryBuilderImplTest {
         void must_create_inner_join_query_from_inspector() {
             result = inspector.inspect("inner join entity.users default");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.join().getQuery();
+            String query = fromBuilder.join().toString();
             assertEquals("inner join entity.users default", query);
         }
 
@@ -68,7 +68,7 @@ class FromQueryBuilderImplTest {
         void must_create_inner_join_fetch_query_from_inspector() {
             result = inspector.inspect("inner join fetch entity.users default");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.join().getQuery();
+            String query = fromBuilder.join().toString();
             assertEquals("inner join fetch entity.users default", query);
         }
 
@@ -77,7 +77,7 @@ class FromQueryBuilderImplTest {
             expression = QueryExpression.newGlobalExpression("user", "inner join entity.users default");
             result = inspector.inspect("");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.join(expression).getQuery();
+            String query = fromBuilder.join(expression).toString();
             assertEquals("inner join entity.users default", query);
         }
 
@@ -90,7 +90,7 @@ class FromQueryBuilderImplTest {
         void must_create_left_join_query_from_inspector() {
             result = inspector.inspect("left join entity.users default");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.join().getQuery();
+            String query = fromBuilder.join().toString();
             assertEquals("left join entity.users default", query);
         }
 
@@ -98,7 +98,7 @@ class FromQueryBuilderImplTest {
         void must_create_left_join_fetch_query_from_inspector() {
             result = inspector.inspect("left join fetch entity.users default");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.join().getQuery();
+            String query = fromBuilder.join().toString();
             assertEquals("left join fetch entity.users default", query);
         }
 
@@ -107,7 +107,7 @@ class FromQueryBuilderImplTest {
             expression = QueryExpression.newGlobalExpression("user", "left join entity.users default");
             result = inspector.inspect("");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.join(expression).getQuery();
+            String query = fromBuilder.join(expression).toString();
             assertEquals("left join entity.users default", query);
         }
 
@@ -120,7 +120,7 @@ class FromQueryBuilderImplTest {
         void must_create_where_query_from_inspector() {
             result = inspector.inspect("where entity.id is not null");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.where().getQuery();
+            String query = fromBuilder.where().toString();
             assertEquals("where entity.id is not null", query);
         }
 
@@ -128,7 +128,7 @@ class FromQueryBuilderImplTest {
         void must_create_multiple_where_query_from_inspector() {
             result = inspector.inspect("where entity.id is not null and entity.name <> :name");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.where().getQuery();
+            String query = fromBuilder.where().toString();
             assertEquals("where entity.id is not null and entity.name <> :name", query);
         }
 
@@ -141,7 +141,7 @@ class FromQueryBuilderImplTest {
         void must_create_empty_order_by_query_from_inspector() {
             result = inspector.inspect("");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.order().getQuery();
+            String query = fromBuilder.order().toString();
             assertEquals("", query);
         }
 
@@ -149,7 +149,7 @@ class FromQueryBuilderImplTest {
         void must_create_order_by_query_from_inspector() {
             result = inspector.inspect("order by entity.name");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.order().getQuery();
+            String query = fromBuilder.order().toString();
             assertEquals("order by entity.name", query);
         }
 
@@ -157,7 +157,7 @@ class FromQueryBuilderImplTest {
         void must_create_multiple_order_by_query_from_inspector() {
             result = inspector.inspect("order by entity.name desc, entity.id");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
-            String query = fromBuilder.order().getQuery();
+            String query = fromBuilder.order().toString();
             assertEquals("order by entity.name desc, entity.id", query);
         }
 

@@ -130,44 +130,42 @@ final class DynamicQueryMethodFactory implements DynamicQueryFactory {
     }
 
     private String createSelectQuery() {
-        DynamicQueryBuilder queryBuilder = DynamicQueryBuilder.newInstance();
-        String aliasName = getEntityClass().getSimpleName().toLowerCase();
-        return queryBuilder.select(aliasName).from(getEntityClass()).getQuery();
+        DynamicQueryBuilder queryBuilder = DynamicQueryBuilder.newInstance(getEntityClass());
+        return queryBuilder.select().from().toString();
     }
 
     private String createCountQuery() {
-        DynamicQueryBuilder queryBuilder = DynamicQueryBuilder.newInstance();
-        String aliasName = getEntityClass().getSimpleName().toLowerCase();
+        DynamicQueryBuilder queryBuilder = DynamicQueryBuilder.newInstance(getEntityClass());
 
         return queryBuilder
-            .count(aliasName)
-            .from(getEntityClass())
+            .count()
+            .from()
             .join()
             .where()
             .order()
-            .getQuery();
+            .toString();
     }
 
     private String createSelectQuery(Method method) {
-        DynamicQueryBuilder queryBuilder = DynamicQueryBuilder.newInstance();
+        DynamicQueryBuilder queryBuilder = DynamicQueryBuilder.newInstance(getEntityClass());
         Query query = method.getAnnotation(Query.class);
 
         if (query == null) {
             return createSelectQuery();
         }
 
-        return queryBuilder.select(null).from(getEntityClass(), query).join().where().order().getQuery();
+        return queryBuilder.select(query).from().join().where().order().toString();
     }
 
     private String createCountQuery(Method method) {
-        DynamicQueryBuilder queryBuilder = DynamicQueryBuilder.newInstance();
+        DynamicQueryBuilder queryBuilder = DynamicQueryBuilder.newInstance(getEntityClass());
         Query query = method.getAnnotation(Query.class);
 
         if (query == null) {
             return createCountQuery();
         }
 
-        return queryBuilder.count(null).from(getEntityClass(), query).join().where().getQuery();
+        return queryBuilder.count(query).from().join().where().toString();
     }
 
     private Class<?> getEntityClass() {

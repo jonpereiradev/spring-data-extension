@@ -15,7 +15,7 @@ class OrderQueryBuilderImplTest {
         orderBuilder = new OrderQueryBuilderImpl(new StringBuilder());
         expression = QueryExpression.newGlobalExpression("name", "entity.name desc");
 
-        String query = orderBuilder.by(expression).getQuery();
+        String query = orderBuilder.by(expression).toString();
         assertEquals("order by entity.name desc", query);
     }
 
@@ -24,7 +24,7 @@ class OrderQueryBuilderImplTest {
         orderBuilder = new OrderQueryBuilderImpl(new StringBuilder("order by entity.id asc"));
         expression = QueryExpression.newGlobalExpression("name", "entity.name desc");
 
-        String query = orderBuilder.by(expression).getQuery();
+        String query = orderBuilder.by(expression).toString();
         assertEquals("order by entity.id asc, entity.name desc", query);
     }
 

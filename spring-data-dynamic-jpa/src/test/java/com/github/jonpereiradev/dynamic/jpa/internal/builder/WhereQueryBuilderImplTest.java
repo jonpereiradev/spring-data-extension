@@ -28,7 +28,7 @@ class WhereQueryBuilderImplTest {
         whereBuilder = new WhereQueryBuilderImpl(new StringBuilder(), result);
         expression = QueryExpression.newGlobalExpression("name", "and entity.name is not null");
 
-        String query = whereBuilder.and(expression).getQuery();
+        String query = whereBuilder.and(expression).toString();
         assertEquals("where entity.name is not null", query);
     }
 
@@ -38,7 +38,7 @@ class WhereQueryBuilderImplTest {
         whereBuilder = new WhereQueryBuilderImpl(new StringBuilder("where entity.id = :id"), result);
         expression = QueryExpression.newGlobalExpression("name", "and entity.name is not null");
 
-        String query = whereBuilder.and(expression).getQuery();
+        String query = whereBuilder.and(expression).toString();
         assertEquals("where entity.id = :id and entity.name is not null", query);
     }
 
@@ -47,7 +47,7 @@ class WhereQueryBuilderImplTest {
         result = inspector.inspect("");
         whereBuilder = new WhereQueryBuilderImpl(new StringBuilder(), result);
 
-        String query = whereBuilder.order().getQuery();
+        String query = whereBuilder.order().toString();
         assertEquals("", query);
     }
 
@@ -56,7 +56,7 @@ class WhereQueryBuilderImplTest {
         result = inspector.inspect("order by entity.id desc");
         whereBuilder = new WhereQueryBuilderImpl(new StringBuilder(), result);
 
-        String query = whereBuilder.order().getQuery();
+        String query = whereBuilder.order().toString();
         assertEquals("order by entity.id desc", query);
     }
 
@@ -65,7 +65,7 @@ class WhereQueryBuilderImplTest {
         result = inspector.inspect("order by entity.id desc, entity.name asc");
         whereBuilder = new WhereQueryBuilderImpl(new StringBuilder(), result);
 
-        String query = whereBuilder.order().getQuery();
+        String query = whereBuilder.order().toString();
         assertEquals("order by entity.id desc, entity.name asc", query);
     }
 

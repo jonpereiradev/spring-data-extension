@@ -9,6 +9,4 @@ public interface WhereQueryBuilder {
 
     OrderQueryBuilder order();
 
-    String getQuery();
-
 }
