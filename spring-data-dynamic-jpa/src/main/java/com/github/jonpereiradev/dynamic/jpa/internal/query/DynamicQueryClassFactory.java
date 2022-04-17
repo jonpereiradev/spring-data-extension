@@ -55,7 +55,7 @@ final class DynamicQueryClassFactory implements DynamicQueryFactory {
                 logger.debug(
                     "{}: Mapped default join expression as \"{}\" binding parameter \"{}\"",
                     getRepositoryInterface().getSimpleName(),
-                    expression.getExpression(),
+                    expression.getClause(),
                     expression.getBinding()
                 );
             }
@@ -72,7 +72,7 @@ final class DynamicQueryClassFactory implements DynamicQueryFactory {
                 logger.debug(
                     "{}: Mapped default filter expression as \"{}\" binding parameter \"{}\"",
                     getRepositoryInterface().getSimpleName(),
-                    expression.getExpression(),
+                    expression.getClause(),
                     expression.getBinding()
                 );
             }

@@ -123,7 +123,7 @@ final class DynamicJpaRepositoryImpl<T, ID extends Serializable> extends SimpleJ
     private <E> void setQueryParameter(DynamicQueryParams dynamicQuery, TypedQuery<E> typedQuery, QueryExpression expression) {
         Object transformed;
 
-        if (PATTERN_IN_CLAUSE.matcher(expression.getExpression()).matches()) {
+        if (PATTERN_IN_CLAUSE.matcher(expression.getClause()).matches()) {
             transformed = expression.getMatcher().apply(dynamicQuery.getObjects(expression.getBinding()));
         } else {
             transformed = expression.getMatcher().apply(dynamicQuery.getObject(expression.getBinding()));

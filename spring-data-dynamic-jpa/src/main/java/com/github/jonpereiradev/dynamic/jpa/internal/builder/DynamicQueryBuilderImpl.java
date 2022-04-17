@@ -14,7 +14,7 @@ final class DynamicQueryBuilderImpl implements DynamicQueryBuilder {
     private final Class<?> entityClass;
     private final QueryInspector inspector;
 
-    public DynamicQueryBuilderImpl(Class<?> entityClass) {
+    DynamicQueryBuilderImpl(Class<?> entityClass) {
         this.internal = new StringBuilder();
         this.entityClass = entityClass;
         this.inspector = QueryInspectorFactory.newInspector();
@@ -105,11 +105,6 @@ final class DynamicQueryBuilderImpl implements DynamicQueryBuilder {
             .append(")");
 
         return new SelectQueryBuilderImpl(new StringBuilder(internal), result);
-    }
-
-    @Override
-    public String toString() {
-        return internal.toString().trim();
     }
 
 }

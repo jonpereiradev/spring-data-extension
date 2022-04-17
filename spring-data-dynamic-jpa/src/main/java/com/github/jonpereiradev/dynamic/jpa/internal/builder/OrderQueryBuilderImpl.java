@@ -14,9 +14,9 @@ public class OrderQueryBuilderImpl implements OrderQueryBuilder {
     public OrderQueryBuilder by(QueryExpression expression) {
         if (!internal.toString().contains("order by")) {
             internal.append("order by");
-            internal.append(" ").append(expression.getExpression());
+            internal.append(" ").append(expression.getClause());
         } else {
-            internal.append(", ").append(expression.getExpression());
+            internal.append(", ").append(expression.getClause());
         }
 
         return this;

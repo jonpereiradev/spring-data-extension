@@ -15,7 +15,7 @@ public class WhereQueryBuilderImpl implements WhereQueryBuilder {
 
     @Override
     public WhereQueryBuilder and(QueryExpression expression) {
-        String value = expression.getExpression();
+        String value = expression.getClause();
 
         if (!internal.toString().contains("where")) {
             internal.append(" where");

@@ -90,7 +90,7 @@ final class DynamicQueryDefJpaQuery extends AbstractJpaQuery {
         if (!expression.isFeature()) {
             Object transformed = expression.getMatcher().apply(params.getObject(expression.getBinding()));
 
-            if (PATTERN_IN_CLAUSE.matcher(expression.getExpression()).matches()) {
+            if (PATTERN_IN_CLAUSE.matcher(expression.getClause()).matches()) {
                 transformed = expression.getMatcher().apply(params.getObjects(expression.getBinding()));
             }
 

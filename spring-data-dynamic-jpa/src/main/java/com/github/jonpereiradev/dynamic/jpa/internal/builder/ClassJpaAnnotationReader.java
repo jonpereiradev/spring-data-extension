@@ -38,6 +38,9 @@ public class ClassJpaAnnotationReader {
     }
 
     private String findMethodNameByAnnotation(Class<?> entityClass, Class<? extends Annotation> annotation) {
+        String fieldName = null;
+
+
         for (Method method : entityClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(annotation)) {
                 String methodName = method.getName();
@@ -50,15 +53,17 @@ public class ClassJpaAnnotationReader {
                     }
                 }
 
-                return String.valueOf(methodName.charAt(fieldNameStart)).toLowerCase() + methodName.substring(fieldNameStart + 1);
+                String firstLetter = String.valueOf(methodName.charAt(fieldNameStart)).toLowerCase();
+                String lastLetters = methodName.substring(fieldNameStart + 1);
+                fieldName = firstLetter + lastLetters;
             }
         }
 
-        if (entityClass.getSuperclass().isAnnotationPresent(MappedSuperclass.class)) {
+        if (fieldName == null && entityClass.getSuperclass().isAnnotationPresent(MappedSuperclass.class)) {
             return findMethodNameByAnnotation(entityClass.getSuperclass(), annotation);
         }
 
-        return null;
+        return fieldName;
     }
 
 }

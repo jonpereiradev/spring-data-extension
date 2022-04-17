@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.jpa.repository.Query;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DynamicQueryBuilderImplTest {
 
@@ -25,7 +25,7 @@ class DynamicQueryBuilderImplTest {
 
     @BeforeEach
     void before_each() throws NoSuchMethodException {
-        builder = new DynamicQueryBuilderImpl(TestEntity.class);
+        builder = DynamicQueryBuilder.newInstance(TestEntity.class);
         findAllBy = TestRepository.class.getDeclaredMethod("findAllBy", DynamicQueryParams.class).getAnnotation(Query.class);
         countQuery = TestRepository.class.getDeclaredMethod("countQuery", DynamicQueryParams.class).getAnnotation(Query.class);
         emptyQuery = TestRepository.class.getDeclaredMethod("emptyQuery", DynamicQueryParams.class).getAnnotation(Query.class);

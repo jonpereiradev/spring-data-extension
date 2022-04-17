@@ -24,7 +24,7 @@ public class FromQueryBuilderImpl implements FromQueryBuilder {
 
     @Override
     public FromQueryBuilder join(QueryExpression queryExpression) {
-        internal.append(" ").append(queryExpression.getExpression());
+        internal.append(" ").append(queryExpression.getClause());
         return this;
     }
 

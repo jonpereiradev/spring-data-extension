@@ -40,7 +40,7 @@ final class DynamicQueryBuilderImpl {
         dynamicQuery.getParameters().forEach((key, value) -> {
             QueryExpressionKey expressionKey = new QueryExpressionKey(key);
             Optional<QueryExpression> joinValue = queryValue.getJoinValue(expressionKey);
-            joinValue.ifPresent(query -> internal.append(BLANK_SPACE).append(query.getExpression()));
+            joinValue.ifPresent(query -> internal.append(BLANK_SPACE).append(query.getClause()));
         });
 
         return this;
@@ -56,7 +56,7 @@ final class DynamicQueryBuilderImpl {
         dynamicQuery.getParameters().forEach((key, value) -> {
             QueryExpressionKey expressionKey = new QueryExpressionKey(prefix, key);
             Optional<QueryExpression> filterValue = queryValue.getFilterValue(expressionKey);
-            filterValue.ifPresent(query -> internal.append(BLANK_SPACE).append(query.getExpression()));
+            filterValue.ifPresent(query -> internal.append(BLANK_SPACE).append(query.getClause()));
         });
 
         return this;

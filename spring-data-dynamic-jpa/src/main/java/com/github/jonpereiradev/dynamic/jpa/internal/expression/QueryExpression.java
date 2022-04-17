@@ -36,7 +36,7 @@ public interface QueryExpression {
 
     String getBinding();
 
-    String getExpression();
+    String getClause();
 
     boolean isFeature();
 

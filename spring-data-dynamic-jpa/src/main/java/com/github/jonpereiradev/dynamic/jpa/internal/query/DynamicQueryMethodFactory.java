@@ -76,7 +76,7 @@ final class DynamicQueryMethodFactory implements DynamicQueryFactory {
                 logger.debug(
                     "{}: Mapped join expression as \"{}\" binding parameter \"{}\"",
                     logKeyName,
-                    expression.getExpression(),
+                    expression.getClause(),
                     expression.getBinding()
                 );
             }
@@ -89,7 +89,7 @@ final class DynamicQueryMethodFactory implements DynamicQueryFactory {
                 logger.debug(
                     "{}: Mapped join expression as \"{}\" binding parameter \"{}\"",
                     logKeyName,
-                    expression.getExpression(),
+                    expression.getClause(),
                     expression.getBinding()
                 );
             }
@@ -107,7 +107,7 @@ final class DynamicQueryMethodFactory implements DynamicQueryFactory {
                 logger.debug(
                     "{}: Mapped filter expression as \"{}\" binding parameter \"{}\"",
                     logKeyName,
-                    expression.getExpression(),
+                    expression.getClause(),
                     expression.getBinding()
                 );
             }
@@ -120,7 +120,7 @@ final class DynamicQueryMethodFactory implements DynamicQueryFactory {
                 logger.debug(
                     "{}: Mapped filter expression as \"{}\" binding parameter \"{}\"",
                     logKeyName,
-                    expression.getExpression(),
+                    expression.getClause(),
                     expression.getBinding()
                 );
             }
