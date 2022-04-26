@@ -1,6 +1,8 @@
 package com.github.jonpereiradev.dynamic.jpa.internal.query;
 
 
+import com.github.jonpereiradev.dynamic.jpa.internal.annotation.JpaAnnotationReader;
+import com.github.jonpereiradev.dynamic.jpa.internal.annotation.JpaAnnotationReaderFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.builder.DynamicQueryBuilder;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpression;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionFactory;
@@ -65,7 +67,9 @@ final class DynamicQueryClassFactory implements DynamicQueryFactory {
     }
 
     private void addFilterExpressions(DynamicQuery dynamicQuery) {
-        QueryExpressionFactory filterFactory = new QueryExpressionFilterFactory(metadata);
+        JpaAnnotationReaderFactory factory = new JpaAnnotationReaderFactory();
+        JpaAnnotationReader reader = factory.createReader(metadata.getDomainType());
+        QueryExpressionFactory filterFactory = new QueryExpressionFilterFactory(metadata, reader);
 
         for (QueryExpression expression : filterFactory.createExpressions()) {
             if (logger.isDebugEnabled()) {

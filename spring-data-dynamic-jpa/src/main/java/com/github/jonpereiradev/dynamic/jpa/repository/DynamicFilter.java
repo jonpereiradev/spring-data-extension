@@ -17,7 +17,7 @@ public @interface DynamicFilter {
 
     String query();
 
-    String binding() default "";
+    String binding();
 
     Class<?> type() default AutoDetectType.class;
 

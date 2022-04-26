@@ -5,6 +5,8 @@ import com.github.jonpereiradev.dynamic.jpa.repository.DynamicQueryMatchers;
 
 import java.util.function.Function;
 
+import static com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionKey.GLOBAL_PREFIX;
+
 
 public interface QueryExpression {
 
@@ -13,11 +15,11 @@ public interface QueryExpression {
     }
 
     static QueryExpression newGlobalExpression(String name, String expression, Function<Object, ?> matcher) {
-        return new QueryExpressionImpl("clazz." + name, expression, matcher);
+        return new QueryExpressionImpl(GLOBAL_PREFIX + name, expression, matcher);
     }
 
     static QueryExpression newGlobalFeature(String name, String expression) {
-        return new QueryExpressionImpl("clazz." + name, expression, true);
+        return new QueryExpressionImpl(GLOBAL_PREFIX + name, expression, true);
     }
 
     static QueryExpression newExpression(String prefix, String name, String expression) {

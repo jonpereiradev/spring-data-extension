@@ -7,6 +7,7 @@ import com.github.jonpereiradev.dynamic.jpa.internal.builder.FromQueryBuilder;
 import com.github.jonpereiradev.dynamic.jpa.internal.builder.WhereQueryBuilder;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpression;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionKey;
+import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionKeyImpl;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspector;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.query.DynamicQuery;
@@ -78,7 +79,7 @@ final class DynamicQueryDefJpaQuery extends AbstractJpaQuery {
         Query query = getEntityManager().createQuery(queryString);
 
         params.getParameters().forEach((key, value) -> {
-            QueryExpressionKey expressionKey = new QueryExpressionKey(getQueryMethod().getName(), key);
+            QueryExpressionKey expressionKey = new QueryExpressionKeyImpl(getQueryMethod().getName(), key);
             Optional<QueryExpression> restriction = dynamicQuery.getFilterValue(expressionKey);
             restriction.ifPresent(o -> setQueryParameter(params, query, o));
         });
@@ -104,7 +105,7 @@ final class DynamicQueryDefJpaQuery extends AbstractJpaQuery {
 
     private void addDynamicJoin(DynamicQueryParams params, FromQueryBuilder fromQueryBuilder) {
         params.getParameters().forEach((key, value) -> {
-            QueryExpressionKey expressionKey = new QueryExpressionKey(key);
+            QueryExpressionKey expressionKey = new QueryExpressionKeyImpl(key);
             Optional<QueryExpression> joinValue = dynamicQuery.getJoinValue(expressionKey);
             joinValue.ifPresent(fromQueryBuilder::join);
         });
@@ -112,7 +113,7 @@ final class DynamicQueryDefJpaQuery extends AbstractJpaQuery {
 
     private void addDynamicWhere(DynamicQueryParams params, WhereQueryBuilder whereQueryBuilder) {
         params.getParameters().forEach((key, value) -> {
-            QueryExpressionKey expressionKey = new QueryExpressionKey(getQueryMethod().getName(), key);
+            QueryExpressionKey expressionKey = new QueryExpressionKeyImpl(getQueryMethod().getName(), key);
             Optional<QueryExpression> filterValue = dynamicQuery.getFilterValue(expressionKey);
 
             filterValue.ifPresent(expression -> {

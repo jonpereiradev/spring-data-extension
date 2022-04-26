@@ -1,5 +1,8 @@
 package com.github.jonpereiradev.dynamic.jpa.internal.builder;
 
+import com.github.jonpereiradev.dynamic.jpa.internal.annotation.JpaAnnotation;
+import com.github.jonpereiradev.dynamic.jpa.internal.annotation.JpaAnnotationReader;
+import com.github.jonpereiradev.dynamic.jpa.internal.annotation.JpaAnnotationReaderFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspector;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorResult;
@@ -62,11 +65,12 @@ final class DynamicQueryBuilderImpl implements DynamicQueryBuilder {
 
     @Override
     public SelectQueryBuilder count() {
-        ClassJpaAnnotationReader reader = new ClassJpaAnnotationReader(entityClass);
-        String idFieldName = reader.findNameByAnnotation(Id.class);
+        JpaAnnotationReaderFactory factory = new JpaAnnotationReaderFactory();
+        JpaAnnotationReader reader = factory.createReader(entityClass);
+        JpaAnnotation<Id> annotation = reader.findFirstNameOf(Id.class);
 
         String aliasName = entityClass.getSimpleName().toLowerCase();
-        String query = String.format("select count(%s.%s) from %s %s", aliasName, idFieldName, entityClass.getSimpleName(), aliasName);
+        String query = String.format("select count(%s.%s) from %s %s", aliasName, annotation.getName(), entityClass.getSimpleName(), aliasName);
         QueryInspectorResult result = inspector.inspect(query);
 
         return count(result);
@@ -89,8 +93,9 @@ final class DynamicQueryBuilderImpl implements DynamicQueryBuilder {
 
     @Override
     public SelectQueryBuilder count(QueryInspectorResult result) {
-        ClassJpaAnnotationReader reader = new ClassJpaAnnotationReader(entityClass);
-        String idFieldName = reader.findNameByAnnotation(Id.class);
+        JpaAnnotationReaderFactory factory = new JpaAnnotationReaderFactory();
+        JpaAnnotationReader reader = factory.createReader(entityClass);
+        JpaAnnotation<Id> annotation = reader.findFirstNameOf(Id.class);
 
         internal.append("select count(");
 
@@ -101,7 +106,7 @@ final class DynamicQueryBuilderImpl implements DynamicQueryBuilder {
         internal
             .append(result.getFrom()[0].getAliasName())
             .append(".")
-            .append(idFieldName)
+            .append(annotation.getName())
             .append(")");
 
         return new SelectQueryBuilderImpl(new StringBuilder(internal), result);

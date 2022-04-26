@@ -4,6 +4,7 @@ package com.github.jonpereiradev.dynamic.jpa.repository;
 import com.github.jonpereiradev.dynamic.jpa.DynamicQueryParams;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpression;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionKey;
+import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionKeyImpl;
 import com.github.jonpereiradev.dynamic.jpa.internal.query.DynamicQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -112,7 +113,7 @@ final class DynamicJpaRepositoryImpl<T, ID extends Serializable> extends SimpleJ
         TypedQuery<E> typedQuery = entityManager.createQuery(query, returnType);
 
         dynamicQuery.getParameters().forEach((key, value) -> {
-            QueryExpressionKey expressionKey = new QueryExpressionKey(prefix, key);
+            QueryExpressionKey expressionKey = new QueryExpressionKeyImpl(prefix, key);
             Optional<QueryExpression> filterValue = queryRef.getFilterValue(expressionKey);
             filterValue.ifPresent(queryExpression -> setQueryParameter(dynamicQuery, typedQuery, queryExpression));
         });
