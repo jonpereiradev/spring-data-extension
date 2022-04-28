@@ -17,7 +17,7 @@ final class SelectQueryBuilderImpl implements SelectQueryBuilder {
         internal.append(" from ");
 
         for (int i = 0; i < result.getFrom().length; i++) {
-            QueryInspectorResult.DynamicFrom from = result.getFrom()[i];
+            QueryInspectorResult.FromInspected from = result.getFrom()[i];
 
             if (i == 0) {
                 internal

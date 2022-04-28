@@ -80,15 +80,15 @@ public class HqlInspectorImpl implements QueryInspector {
             }
         }
 
-        List<QueryInspectorResult.DynamicFrom> froms = new ArrayList<>();
+        List<QueryInspectorResult.FromInspected> froms = new ArrayList<>();
 
         for (String from : mappedBy.getOrDefault(Keyword.FROM.name(), new String[0])) {
             String[] split = from.split("\\s+");
-            froms.add(new QueryInspectorResult.DynamicFrom(split[0], split[1]));
+            froms.add(new QueryInspectorResult.FromInspected(split[0], split[1]));
         }
 
         result.setSelect(mappedBy.getOrDefault(Keyword.SELECT.name(), new String[0]));
-        result.setFrom(froms.toArray(new QueryInspectorResult.DynamicFrom[0]));
+        result.setFrom(froms.toArray(new QueryInspectorResult.FromInspected[0]));
         result.setJoin(mappedBy.getOrDefault(Keyword.JOIN.name(), new String[0]));
         result.setWhere(mappedBy.getOrDefault(Keyword.WHERE.name(), new String[0]));
         result.setOrderBy(mappedBy.getOrDefault(Keyword.ORDER.name(), new String[0]));

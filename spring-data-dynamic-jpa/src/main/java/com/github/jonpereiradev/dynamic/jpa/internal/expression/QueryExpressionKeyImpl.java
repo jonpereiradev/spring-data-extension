@@ -31,7 +31,7 @@ public final class QueryExpressionKeyImpl implements QueryExpressionKey {
 
     @Override
     public String getGlobalKey() {
-        return GLOBAL_PREFIX + key;
+        return "clazz." + key;
     }
 
 }

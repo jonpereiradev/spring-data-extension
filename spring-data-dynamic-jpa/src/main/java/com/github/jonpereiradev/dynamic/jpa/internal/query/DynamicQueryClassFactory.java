@@ -8,8 +8,6 @@ import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpression;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionFilterFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionJoinFactory;
-import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspector;
-import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.repository.core.RepositoryMetadata;
@@ -20,11 +18,9 @@ final class DynamicQueryClassFactory implements DynamicQueryFactory {
     private final Logger logger = LoggerFactory.getLogger(DynamicQueryClassFactory.class);
 
     private final RepositoryMetadata metadata;
-    private final QueryInspector inspector;
 
     DynamicQueryClassFactory(RepositoryMetadata metadata) {
         this.metadata = metadata;
-        this.inspector = QueryInspectorFactory.newInspector();
     }
 
     @Override

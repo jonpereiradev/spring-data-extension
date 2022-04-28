@@ -1,6 +1,7 @@
 package com.github.jonpereiradev.dynamic.jpa;
 
 import com.github.jonpereiradev.dynamic.jpa.repository.DynamicFilter;
+import com.github.jonpereiradev.dynamic.jpa.repository.DynamicJoin;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -43,6 +44,31 @@ public class Repositories {
 
         @Query("select entity from Any entity")
         @DynamicFilter(query = "and entity.name = :name", binding = "name")
+        List<Entities.Any> findQuery(DynamicQueryParams params);
+
+    }
+
+    @Repository
+    @DynamicJoin(query = "join any.user user", binding = "user")
+    public interface GlobalJoin {
+    }
+
+    @Repository
+    public interface MethodJoin {
+
+        @DynamicJoin(query = "join any.user user", binding = "user")
+        List<Entities.Any> findAny(DynamicQueryParams params);
+
+    }
+
+    @Repository
+    public interface CombinedJoin extends GlobalJoin {
+
+        @DynamicJoin(query = "join any.address address", binding = "address")
+        List<Entities.Any> findAny(DynamicQueryParams params);
+
+        @Query("select method from Any method")
+        @DynamicJoin(query = "join method.address address", binding = "address")
         List<Entities.Any> findQuery(DynamicQueryParams params);
 
     }

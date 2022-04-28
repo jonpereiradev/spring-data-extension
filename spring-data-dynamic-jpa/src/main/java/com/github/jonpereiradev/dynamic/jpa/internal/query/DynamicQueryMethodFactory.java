@@ -24,12 +24,10 @@ final class DynamicQueryMethodFactory implements DynamicQueryFactory {
 
     private final RepositoryMetadata metadata;
     private final Method method;
-    private final QueryInspector inspector;
 
     DynamicQueryMethodFactory(RepositoryMetadata metadata, Method method) {
         this.metadata = metadata;
         this.method = method;
-        this.inspector = QueryInspectorFactory.newInspector();
     }
 
     @Override

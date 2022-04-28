@@ -11,7 +11,7 @@ import java.util.function.Function;
  * Interface para integrar com o QueryBuilder, onde permite o mapeamento de restrições por uma chave e expressão de
  * SQL.
  */
-final class QueryExpressionImpl implements QueryExpression {
+public final class QueryExpressionImpl implements QueryExpression {
 
     private final String key;
     private final String binding;
@@ -19,17 +19,17 @@ final class QueryExpressionImpl implements QueryExpression {
     private final Function<Object, ?> matcher;
     private final boolean feature;
 
-    QueryExpressionImpl(String key, String clause, Function<Object, ?> matcher) {
+    public QueryExpressionImpl(String key, String clause, Function<Object, ?> matcher) {
         this.key = key;
-        this.binding = key.substring(key.indexOf(".") + 1);
+        this.binding = key.substring(key.lastIndexOf(".") + 1);
         this.clause = clause;
         this.matcher = matcher;
         this.feature = false;
     }
 
-    QueryExpressionImpl(String key, String clause, boolean feature) {
+    public QueryExpressionImpl(String key, String clause, boolean feature) {
         this.key = key;
-        this.binding = key.substring(key.indexOf(".") + 1);
+        this.binding = key.substring(key.lastIndexOf(".") + 1);
         this.clause = clause;
         this.matcher = DynamicQueryMatchers::toBoolean;
         this.feature = feature;

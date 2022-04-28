@@ -5,7 +5,7 @@ public class QueryInspectorResultImpl implements QueryInspectorResult {
     private boolean distinct;
 
     private String[] select;
-    private DynamicFrom[] from;
+    private FromInspected[] from;
     private String[] join;
     private String[] filter;
     private String[] order;
@@ -29,11 +29,11 @@ public class QueryInspectorResultImpl implements QueryInspectorResult {
     }
 
     @Override
-    public DynamicFrom[] getFrom() {
+    public FromInspected[] getFrom() {
         return from;
     }
 
-    public void setFrom(DynamicFrom[] from) {
+    public void setFrom(FromInspected[] from) {
         this.from = from;
     }
 

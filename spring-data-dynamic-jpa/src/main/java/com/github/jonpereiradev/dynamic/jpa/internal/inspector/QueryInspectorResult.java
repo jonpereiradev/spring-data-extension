@@ -6,7 +6,7 @@ public interface QueryInspectorResult {
 
     String[] getSelect();
 
-    DynamicFrom[] getFrom();
+    FromInspected[] getFrom();
 
     String[] getJoin();
 
@@ -14,12 +14,12 @@ public interface QueryInspectorResult {
 
     String[] getOrderBy();
 
-    class DynamicFrom {
+    class FromInspected {
 
         private final String entityName;
         private final String aliasName;
 
-        public DynamicFrom(String entityName, String aliasName) {
+        public FromInspected(String entityName, String aliasName) {
             this.entityName = entityName;
             this.aliasName = aliasName;
         }

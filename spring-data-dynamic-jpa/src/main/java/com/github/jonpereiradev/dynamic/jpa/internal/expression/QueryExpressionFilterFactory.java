@@ -26,6 +26,8 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
 
     private static final Pattern ALIAS_PATTERN = Pattern.compile(".*(?:\\s|\\()(\\w+)\\.\\w+.*");
 
+    static final String GLOBAL_PREFIX = "filter.clazz.";
+
     private final Class<?> entityClass;
     private final Class<?> repositoryInterface;
     private final JpaAnnotationReader reader;
@@ -42,11 +44,11 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
     }
 
     @Override
-    public Set<QueryExpression> createExpressions(String alias) {
+    public Set<QueryExpression> createExpressions(String aliasName) {
         Set<QueryExpression> expressions = new LinkedHashSet<>();
 
-        readReflectionFilters(expressions, entityClass, alias);
-        readRepositoryFilters(expressions, repositoryInterface, alias, null);
+        readReflectionFilters(expressions, entityClass, aliasName);
+        readRepositoryFilters(expressions, repositoryInterface, aliasName, null);
 
         return expressions;
     }
@@ -82,12 +84,12 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
                 query = "and " + alias + "." + jpaAnnotation.getName() + ".id = :" + jpaAnnotation.getName();
                 name = jpaAnnotation.getName();
                 matcher = value -> DynamicQueryMatchers.from(jpaAnnotation.getReturnType(), value);
-                expressions.add(QueryExpression.newGlobalExpression(name, query, matcher));
+                expressions.add(newGlobalExpression(name, query, matcher));
             } else {
                 query = "and " + alias + "." + jpaAnnotation.getName() + " = :" + jpaAnnotation.getName();
                 name = jpaAnnotation.getName();
                 matcher = value -> DynamicQueryMatchers.from(jpaAnnotation.getReturnType(), value);
-                expressions.add(QueryExpression.newGlobalExpression(name, query, matcher));
+                expressions.add(newGlobalExpression(name, query, matcher));
             }
         }
 
@@ -132,21 +134,37 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
 
         if (method == null) {
             if (annotation.type().equals(DynamicFilter.Feature.class)) {
-                queryExpression = QueryExpression.newGlobalFeature(name, query);
+                queryExpression = newGlobalFeature(name, query);
             } else {
                 Function<Object, Object> matcher = value -> DynamicQueryMatchers.from(annotation.type(), value);
-                queryExpression = QueryExpression.newGlobalExpression(name, query, matcher);
+                queryExpression = newGlobalExpression(name, query, matcher);
             }
         } else {
             if (annotation.type().equals(DynamicFilter.Feature.class)) {
-                queryExpression = QueryExpression.newFeature(method.getName(), name, query);
+                queryExpression = newFeature(method.getName(), name, query);
             } else {
                 Function<Object, Object> matcher = value -> DynamicQueryMatchers.from(annotation.type(), value);
-                queryExpression = QueryExpression.newExpression(method.getName(), name, query, matcher);
+                queryExpression = newExpression(method.getName(), name, query, matcher);
             }
         }
 
         return queryExpression;
+    }
+
+    private static QueryExpression newGlobalExpression(String name, String expression, Function<Object, ?> matcher) {
+        return new QueryExpressionImpl(GLOBAL_PREFIX + name, expression, matcher);
+    }
+
+    private static QueryExpression newGlobalFeature(String name, String expression) {
+        return new QueryExpressionImpl(GLOBAL_PREFIX + name, expression, true);
+    }
+
+    private static QueryExpression newExpression(String prefix, String name, String expression, Function<Object, ?> matcher) {
+        return new QueryExpressionImpl("filter." + prefix + "." + name, expression, matcher);
+    }
+
+    private static QueryExpression newFeature(String prefix, String name, String expression) {
+        return new QueryExpressionImpl("filter." + prefix + "." + name, expression, true);
     }
 
     private boolean isDynamicFilter(Class<?> clazz) {
