@@ -2,6 +2,7 @@ package com.github.jonpereiradev.dynamic.jpa;
 
 import com.github.jonpereiradev.dynamic.jpa.repository.DynamicFilter;
 import com.github.jonpereiradev.dynamic.jpa.repository.DynamicJoin;
+import com.github.jonpereiradev.dynamic.jpa.repository.DynamicJpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -15,21 +16,21 @@ public class Repositories {
 
     @Repository
     @DynamicFilter(query = "and filter.id = :id", binding = "id")
-    public interface GlobalFilter {
+    public interface GlobalFilter extends DynamicJpaRepository<Integer, Entities.Any> {
     }
 
     @Repository
     @DynamicFilter(query = "filter.id = :id", binding = "id")
-    public interface GlobalNoAndFilter {
+    public interface GlobalNoAndFilter extends DynamicJpaRepository<Integer, Entities.Any> {
     }
 
     @Repository
     @DynamicFilter(query = "and filter.id is not null", binding = "id", type = DynamicFilter.Feature.class)
-    public interface GlobalFeatureFilter {
+    public interface GlobalFeatureFilter extends DynamicJpaRepository<Integer, Entities.Any> {
     }
 
     @Repository
-    public interface MethodFilter {
+    public interface MethodFilter extends DynamicJpaRepository<Integer, Entities.Any> {
 
         @DynamicFilter(query = "and filter.id = :id", binding = "id")
         List<Entities.Any> findAny(DynamicQueryParams params);
@@ -42,6 +43,7 @@ public class Repositories {
         @DynamicFilter(query = "and any.name = :name", binding = "name")
         List<Entities.Any> findAny(DynamicQueryParams params);
 
+        /** @noinspection JpaQlInspection*/
         @Query("select entity from Any entity")
         @DynamicFilter(query = "and entity.name = :name", binding = "name")
         List<Entities.Any> findQuery(DynamicQueryParams params);
@@ -50,11 +52,11 @@ public class Repositories {
 
     @Repository
     @DynamicJoin(query = "join any.user user", binding = "user")
-    public interface GlobalJoin {
+    public interface GlobalJoin extends DynamicJpaRepository<Integer, Entities.Any> {
     }
 
     @Repository
-    public interface MethodJoin {
+    public interface MethodJoin extends DynamicJpaRepository<Integer, Entities.Any> {
 
         @DynamicJoin(query = "join any.user user", binding = "user")
         List<Entities.Any> findAny(DynamicQueryParams params);

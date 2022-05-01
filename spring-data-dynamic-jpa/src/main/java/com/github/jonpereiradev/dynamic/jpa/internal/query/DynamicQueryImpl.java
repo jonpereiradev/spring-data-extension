@@ -15,48 +15,26 @@ final class DynamicQueryImpl implements DynamicQuery {
 
     private final QueryInspectorResult selectQuery;
     private final QueryInspectorResult countQuery;
-
-    private final Map<String, QueryExpression> joins;
-    private final Map<String, QueryExpression> filters;
+    private final Class<?> entityClass;
+    private final Map<QueryExpressionKey, QueryExpression> expressions;
 
     DynamicQueryImpl(String selectQuery, String countQuery, Class<?> entityClass, Class<?> repositoryInterface) {
         QueryInspector inspector = QueryInspectorFactory.newInspector();
         this.selectQuery = inspector.inspect(selectQuery);
         this.countQuery = inspector.inspect(countQuery);
-        this.joins = new HashMap<>();
-        this.filters = new HashMap<>();
+        this.entityClass = entityClass;
+        this.expressions = new HashMap<>();
     }
 
     @Override
-    public void addJoin(QueryExpression expression) {
-        joins.put(expression.getKey(), expression);
+    public void addExpression(QueryExpression expression) {
+        expressions.put(expression.getKey(), expression);
     }
 
     @Override
-    public void addFilter(QueryExpression expression) {
-        filters.put(expression.getKey(), expression);
-    }
-
-    @Override
-    public Optional<QueryExpression> getJoinValue(QueryExpressionKey expressionKey) {
-        String keyName = expressionKey.getKey();
-
-        if (!joins.containsKey(keyName)) {
-            keyName = expressionKey.getGlobalKey();
-        }
-
-        return Optional.ofNullable(joins.get(keyName));
-    }
-
-    @Override
-    public Optional<QueryExpression> getFilterValue(QueryExpressionKey expressionKey) {
-        String keyName = expressionKey.getKey();
-
-        if (!filters.containsKey(keyName)) {
-            keyName = expressionKey.getGlobalKey();
-        }
-
-        return Optional.ofNullable(filters.get(keyName));
+    public Optional<QueryExpression> getExpression(QueryExpressionKey expressionKey) {
+        QueryExpression expression = expressions.get(expressionKey);
+        return Optional.ofNullable(expression);
     }
 
     @Override
@@ -71,7 +49,7 @@ final class DynamicQueryImpl implements DynamicQuery {
 
     @Override
     public Class<?> getEntityClass() {
-        return null;
+        return entityClass;
     }
 
 }

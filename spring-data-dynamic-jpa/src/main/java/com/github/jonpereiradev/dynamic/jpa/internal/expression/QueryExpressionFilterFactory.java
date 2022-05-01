@@ -26,8 +26,6 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
 
     private static final Pattern ALIAS_PATTERN = Pattern.compile(".*(?:\\s|\\()(\\w+)\\.\\w+.*");
 
-    static final String GLOBAL_PREFIX = "filter.clazz.";
-
     private final Class<?> entityClass;
     private final Class<?> repositoryInterface;
     private final JpaAnnotationReader reader;
@@ -103,10 +101,10 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
     private void readRepositoryFilters(Set<QueryExpression> expressions, Class<?> repositoryInterface, String alias, Method method) {
         if (isDynamicFilter(repositoryInterface)) {
             for (DynamicFilter annotation : repositoryInterface.getAnnotationsByType(DynamicFilter.class)) {
-                QueryExpression queryExpression = createQueryExpression(annotation, alias, method);
+                QueryExpression expression = createQueryExpression(annotation, alias, method);
 
-                expressions.remove(queryExpression);
-                expressions.add(queryExpression);
+                expressions.remove(expression);
+                expressions.add(expression);
             }
         }
 
@@ -151,20 +149,20 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
         return queryExpression;
     }
 
-    private static QueryExpression newGlobalExpression(String name, String expression, Function<Object, ?> matcher) {
-        return new QueryExpressionImpl(GLOBAL_PREFIX + name, expression, matcher);
+    private QueryExpression newGlobalExpression(String name, String expression, Function<Object, ?> matcher) {
+        return new QueryExpressionImpl(new FilterExpressionKeyImpl(name), expression, matcher);
     }
 
-    private static QueryExpression newGlobalFeature(String name, String expression) {
-        return new QueryExpressionImpl(GLOBAL_PREFIX + name, expression, true);
+    private QueryExpression newGlobalFeature(String name, String expression) {
+        return new QueryExpressionImpl(new FilterExpressionKeyImpl(name), expression, true);
     }
 
-    private static QueryExpression newExpression(String prefix, String name, String expression, Function<Object, ?> matcher) {
-        return new QueryExpressionImpl("filter." + prefix + "." + name, expression, matcher);
+    private QueryExpression newExpression(String prefix, String name, String expression, Function<Object, ?> matcher) {
+        return new QueryExpressionImpl(new FilterExpressionKeyImpl(prefix, name), expression, matcher);
     }
 
-    private static QueryExpression newFeature(String prefix, String name, String expression) {
-        return new QueryExpressionImpl("filter." + prefix + "." + name, expression, true);
+    private QueryExpression newFeature(String prefix, String name, String expression) {
+        return new QueryExpressionImpl(new FilterExpressionKeyImpl(prefix, name), expression, true);
     }
 
     private boolean isDynamicFilter(Class<?> clazz) {

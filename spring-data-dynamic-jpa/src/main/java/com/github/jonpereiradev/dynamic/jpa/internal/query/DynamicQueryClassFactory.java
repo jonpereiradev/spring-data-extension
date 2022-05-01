@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.repository.core.RepositoryMetadata;
 
+import java.lang.reflect.Method;
+
 
 final class DynamicQueryClassFactory implements DynamicQueryFactory {
 
@@ -25,9 +27,13 @@ final class DynamicQueryClassFactory implements DynamicQueryFactory {
 
     @Override
     public DynamicQuery newInstance() {
+        for (Method declaredMethod : metadata.getRepositoryInterface().getDeclaredMethods()) {
+            DynamicQueryFactory methodFactory = new DynamicQueryMethodFactory(metadata, declaredMethod);
+            methodFactory.newInstance();
+        }
+
         String selectQuery = createSelectQuery();
         String countQuery = createCountQuery();
-
         DynamicQuery dynamicQuery = new DynamicQueryImpl(selectQuery, countQuery, getEntityClass(), getRepositoryInterface());
 
         if (logger.isDebugEnabled()) {
@@ -58,7 +64,7 @@ final class DynamicQueryClassFactory implements DynamicQueryFactory {
                 );
             }
 
-            dynamicQuery.addJoin(expression);
+            dynamicQuery.addExpression(expression);
         }
     }
 
@@ -77,7 +83,7 @@ final class DynamicQueryClassFactory implements DynamicQueryFactory {
                 );
             }
 
-            dynamicQuery.addFilter(expression);
+            dynamicQuery.addExpression(expression);
         }
     }
 

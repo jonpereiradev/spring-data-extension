@@ -2,9 +2,10 @@ package com.github.jonpereiradev.dynamic.jpa.repository;
 
 
 import com.github.jonpereiradev.dynamic.jpa.DynamicQueryParams;
+import com.github.jonpereiradev.dynamic.jpa.internal.expression.JoinExpressionKeyImpl;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpression;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionKey;
-import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionKeyImpl;
+import com.github.jonpereiradev.dynamic.jpa.internal.expression.FilterExpressionKeyImpl;
 import com.github.jonpereiradev.dynamic.jpa.internal.query.DynamicQuery;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.query.JpaQueryMethod;
@@ -39,24 +40,24 @@ final class DynamicQueryBuilderImpl {
 
     DynamicQueryBuilderImpl join(DynamicQueryParams dynamicQuery) {
         dynamicQuery.getParameters().forEach((key, value) -> {
-            QueryExpressionKey expressionKey = new QueryExpressionKeyImpl(key);
-            Optional<QueryExpression> joinValue = queryValue.getJoinValue(expressionKey);
+            QueryExpressionKey expressionKey = new JoinExpressionKeyImpl(key);
+            Optional<QueryExpression> joinValue = queryValue.getExpression(expressionKey);
             joinValue.ifPresent(query -> internal.append(BLANK_SPACE).append(query.getClause()));
         });
 
         return this;
     }
 
-    DynamicQueryBuilderImpl where(DynamicQueryParams dynamicQuery, JpaQueryMethod queryMethod) {
-        return where(dynamicQuery, queryMethod.getName());
+    DynamicQueryBuilderImpl where(DynamicQueryParams params, JpaQueryMethod queryMethod) {
+        return where(params, queryMethod.getName());
     }
 
-    DynamicQueryBuilderImpl where(DynamicQueryParams dynamicQuery, String prefix) {
+    DynamicQueryBuilderImpl where(DynamicQueryParams params, String prefix) {
         internal.append(" where 1 = 1");
 
-        dynamicQuery.getParameters().forEach((key, value) -> {
-            QueryExpressionKey expressionKey = new QueryExpressionKeyImpl(prefix, key);
-            Optional<QueryExpression> filterValue = queryValue.getFilterValue(expressionKey);
+        params.getParameters().forEach((key, value) -> {
+            QueryExpressionKey expressionKey = new FilterExpressionKeyImpl(prefix, key);
+            Optional<QueryExpression> filterValue = queryValue.getExpression(expressionKey);
             filterValue.ifPresent(query -> internal.append(BLANK_SPACE).append(query.getClause()));
         });
 

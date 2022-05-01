@@ -8,8 +8,6 @@ import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpression;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionFilterFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionJoinFactory;
-import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspector;
-import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.Query;
@@ -35,54 +33,32 @@ final class DynamicQueryMethodFactory implements DynamicQueryFactory {
         String selectQuery = createSelectQuery(method);
         String countQuery = createCountQuery(method);
 
-        DynamicQuery queryValue = new DynamicQueryImpl(
+        DynamicQuery dynamicQuery = new DynamicQueryImpl(
             selectQuery,
             countQuery,
             metadata.getDomainType(),
             metadata.getRepositoryInterface()
         );
 
-        String key = metadata.getRepositoryInterface().getSimpleName() + "." + method.getName();
+        String logKeyName = metadata.getRepositoryInterface().getSimpleName() + "." + method.getName();
 
         if (logger.isDebugEnabled()) {
             logger.debug(
                 "{}: Mapped query as \"{}\" and count query as \"{}\"",
-                key,
+                logKeyName,
                 selectQuery,
                 countQuery
             );
         }
 
-//        if (INSTANCES.containsKey(metadata.getRepositoryInterface().getName())) {
-//            DynamicQuery value = INSTANCES.get(metadata.getRepositoryInterface().getName());
-//            value.getJoinExpressions().forEach(queryValue::addJoin);
-//            value.getFilterExpressions().forEach(queryValue::addFilter);
-//        }
+        addJoinExpressions(method, dynamicQuery, logKeyName);
+        addFilterExpressions(method, dynamicQuery, logKeyName);
 
-        addJoinExpressions(method, queryValue, key);
-        addFilterExpressions(method, queryValue, key);
-
-//        INSTANCES.put(key, queryValue);
-
-        return queryValue;
+        return dynamicQuery;
     }
 
     private void addJoinExpressions(Method method, DynamicQuery dynamicQuery, String logKeyName) {
         QueryExpressionFactory joinFactory = new QueryExpressionJoinFactory(metadata);
-        String aliasName = dynamicQuery.getSelectQuery().getFrom()[0].getAliasName();
-
-        for (QueryExpression expression : joinFactory.createExpressions(aliasName)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "{}: Mapped join expression as \"{}\" binding parameter \"{}\"",
-                    logKeyName,
-                    expression.getClause(),
-                    expression.getBinding()
-                );
-            }
-
-            dynamicQuery.addJoin(expression);
-        }
 
         for (QueryExpression expression : joinFactory.createExpressions(method)) {
             if (logger.isDebugEnabled()) {
@@ -94,7 +70,7 @@ final class DynamicQueryMethodFactory implements DynamicQueryFactory {
                 );
             }
 
-            dynamicQuery.addJoin(expression);
+            dynamicQuery.addExpression(expression);
         }
     }
 
@@ -102,20 +78,6 @@ final class DynamicQueryMethodFactory implements DynamicQueryFactory {
         JpaAnnotationReaderFactory factory = new JpaAnnotationReaderFactory();
         JpaAnnotationReader reader = factory.createReader(metadata.getDomainType());
         QueryExpressionFactory filterFactory = new QueryExpressionFilterFactory(metadata, reader);
-        String aliasName = dynamicQuery.getSelectQuery().getFrom()[0].getAliasName();
-
-        for (QueryExpression expression : filterFactory.createExpressions(aliasName)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "{}: Mapped filter expression as \"{}\" binding parameter \"{}\"",
-                    logKeyName,
-                    expression.getClause(),
-                    expression.getBinding()
-                );
-            }
-
-            dynamicQuery.addFilter(expression);
-        }
 
         for (QueryExpression expression : filterFactory.createExpressions(method)) {
             if (logger.isDebugEnabled()) {
@@ -127,7 +89,7 @@ final class DynamicQueryMethodFactory implements DynamicQueryFactory {
                 );
             }
 
-            dynamicQuery.addFilter(expression);
+            dynamicQuery.addExpression(expression);
         }
     }
 
@@ -172,10 +134,6 @@ final class DynamicQueryMethodFactory implements DynamicQueryFactory {
 
     private Class<?> getEntityClass() {
         return metadata.getDomainType();
-    }
-
-    private Class<?> getRepositoryInterface() {
-        return metadata.getRepositoryInterface();
     }
 
 }

@@ -5,22 +5,23 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
+import java.io.Serializable;
 
 public class Entities {
 
     @Entity
     @SuppressWarnings("JpaMissingIdInspection")
-    public static class Any {
+    public static class Any implements Serializable {
     }
 
     @Entity
     @SuppressWarnings("JpaMissingIdInspection")
-    public static class None {
+    public static class None implements Serializable {
     }
 
     @Entity
     @SuppressWarnings("JpaMissingIdInspection")
-    public static class Join {
+    public static class Join implements Serializable {
 
         @JoinColumn
         @SuppressWarnings("JpaAttributeTypeInspection")
@@ -29,7 +30,7 @@ public class Entities {
     }
 
     @Entity
-    public static class FieldEntity {
+    public static class FieldEntity implements Serializable {
 
         @Id
         private int id;
@@ -37,7 +38,7 @@ public class Entities {
     }
 
     @Entity
-    public static class MethodEntity {
+    public static class MethodEntity implements Serializable {
 
         private int id;
 
@@ -53,7 +54,7 @@ public class Entities {
 
     @Entity
     @SuppressWarnings("JpaMissingIdInspection")
-    public static class TransientFieldEntity {
+    public static class TransientFieldEntity implements Serializable {
 
         @Transient
         private int id;
@@ -62,7 +63,7 @@ public class Entities {
 
     @Entity
     @SuppressWarnings("JpaMissingIdInspection")
-    public static class TransientMethodEntity {
+    public static class TransientMethodEntity implements Serializable {
 
         private int id;
 
@@ -78,7 +79,7 @@ public class Entities {
     }
 
     @MappedSuperclass
-    public static class BaseFieldEntity {
+    public static class BaseFieldEntity implements Serializable {
 
         @Id
         private int id;
@@ -86,7 +87,7 @@ public class Entities {
     }
 
     @MappedSuperclass
-    public static class BaseMethodEntity {
+    public static class BaseMethodEntity implements Serializable {
 
         private int id;
 

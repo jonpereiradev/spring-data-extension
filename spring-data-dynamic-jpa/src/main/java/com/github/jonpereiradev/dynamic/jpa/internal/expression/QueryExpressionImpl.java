@@ -13,30 +13,30 @@ import java.util.function.Function;
  */
 public final class QueryExpressionImpl implements QueryExpression {
 
-    private final String key;
+    private final QueryExpressionKey key;
     private final String binding;
     private final String clause;
     private final Function<Object, ?> matcher;
     private final boolean feature;
 
-    public QueryExpressionImpl(String key, String clause, Function<Object, ?> matcher) {
+    public QueryExpressionImpl(QueryExpressionKey key, String clause, Function<Object, ?> matcher) {
         this.key = key;
-        this.binding = key.substring(key.lastIndexOf(".") + 1);
+        this.binding = key.getValue().substring(key.getValue().lastIndexOf(".") + 1);
         this.clause = clause;
         this.matcher = matcher;
         this.feature = false;
     }
 
-    public QueryExpressionImpl(String key, String clause, boolean feature) {
+    public QueryExpressionImpl(QueryExpressionKey key, String clause, boolean feature) {
         this.key = key;
-        this.binding = key.substring(key.lastIndexOf(".") + 1);
+        this.binding = key.getValue().substring(key.getValue().lastIndexOf(".") + 1);
         this.clause = clause;
         this.matcher = DynamicQueryMatchers::toBoolean;
         this.feature = feature;
     }
 
     @Override
-    public String getKey() {
+    public QueryExpressionKey getKey() {
         return key;
     }
 
@@ -58,6 +58,16 @@ public final class QueryExpressionImpl implements QueryExpression {
     @Override
     public Function<Object, ?> getMatcher() {
         return matcher;
+    }
+
+    @Override
+    public String toString() {
+        return "QueryExpressionImpl{" +
+            "key=" + key +
+            ", binding='" + binding + '\'' +
+            ", clause='" + clause + '\'' +
+            ", feature=" + feature +
+            '}';
     }
 
     @Override

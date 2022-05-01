@@ -12,13 +12,9 @@ public interface DynamicQuery {
 
     QueryInspectorResult getCountQuery();
 
-    void addJoin(QueryExpression expression);
+    void addExpression(QueryExpression expression);
 
-    void addFilter(QueryExpression expression);
-
-    Optional<QueryExpression> getJoinValue(QueryExpressionKey expressionKey);
-
-    Optional<QueryExpression> getFilterValue(QueryExpressionKey expressionKey);
+    Optional<QueryExpression> getExpression(QueryExpressionKey expressionKey);
 
     Class<?> getEntityClass();
 

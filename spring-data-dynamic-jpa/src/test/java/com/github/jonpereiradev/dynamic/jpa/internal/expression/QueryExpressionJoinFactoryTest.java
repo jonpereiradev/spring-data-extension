@@ -41,7 +41,7 @@ class QueryExpressionJoinFactoryTest {
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals(QueryExpressionJoinFactory.GLOBAL_PREFIX + "user", expression.getKey());
+        assertEquals("join.clazz.user", expression.getKey().getValue());
         assertEquals("user", expression.getBinding());
         assertEquals("join any.user user", expression.getClause());
     }
@@ -55,7 +55,7 @@ class QueryExpressionJoinFactoryTest {
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals(QueryExpressionJoinFactory.GLOBAL_PREFIX + "user", expression.getKey());
+        assertEquals("join.clazz.user", expression.getKey().getValue());
         assertEquals("user", expression.getBinding());
         assertEquals("join method.user user", expression.getClause());
     }
@@ -70,7 +70,7 @@ class QueryExpressionJoinFactoryTest {
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals("join." + method.getName() + ".user", expression.getKey());
+        assertEquals("join." + method.getName() + ".user", expression.getKey().getValue());
         assertEquals("user", expression.getBinding());
         assertEquals("join any.user user", expression.getClause());
     }
@@ -84,11 +84,11 @@ class QueryExpressionJoinFactoryTest {
         List<QueryExpression> expressions = new ArrayList<>(expressionFactory.createExpressions(method));
         assertEquals(2, expressions.size());
 
-        assertEquals("join." + method.getName() + ".user", expressions.get(0).getKey());
+        assertEquals("join." + method.getName() + ".user", expressions.get(0).getKey().getValue());
         assertEquals("user", expressions.get(0).getBinding());
         assertEquals("join any.user user", expressions.get(0).getClause());
 
-        assertEquals("join." + method.getName() + ".address", expressions.get(1).getKey());
+        assertEquals("join." + method.getName() + ".address", expressions.get(1).getKey().getValue());
         assertEquals("address", expressions.get(1).getBinding());
         assertEquals("join any.address address", expressions.get(1).getClause());
     }
@@ -102,11 +102,11 @@ class QueryExpressionJoinFactoryTest {
         List<QueryExpression> expressions = new ArrayList<>(expressionFactory.createExpressions(method));
         assertEquals(2, expressions.size());
 
-        assertEquals("join." + method.getName() + ".user", expressions.get(0).getKey());
+        assertEquals("join." + method.getName() + ".user", expressions.get(0).getKey().getValue());
         assertEquals("user", expressions.get(0).getBinding());
         assertEquals("join method.user user", expressions.get(0).getClause());
 
-        assertEquals("join." + method.getName() + ".address", expressions.get(1).getKey());
+        assertEquals("join." + method.getName() + ".address", expressions.get(1).getKey().getValue());
         assertEquals("address", expressions.get(1).getBinding());
         assertEquals("join method.address address", expressions.get(1).getClause());
     }

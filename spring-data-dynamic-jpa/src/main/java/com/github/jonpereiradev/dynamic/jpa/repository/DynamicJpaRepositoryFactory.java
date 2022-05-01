@@ -1,10 +1,12 @@
 package com.github.jonpereiradev.dynamic.jpa.repository;
 
 
+import com.github.jonpereiradev.dynamic.jpa.DynamicQueryParams;
 import com.github.jonpereiradev.dynamic.jpa.internal.query.DynamicQuery;
 import com.github.jonpereiradev.dynamic.jpa.internal.query.DynamicQueryFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.provider.PersistenceProvider;
 import org.springframework.data.jpa.repository.query.EscapeCharacter;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
@@ -17,6 +19,7 @@ import org.springframework.data.repository.query.QueryMethodEvaluationContextPro
 
 import javax.persistence.EntityManager;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.Optional;
 
 /**
@@ -74,10 +77,27 @@ final class DynamicJpaRepositoryFactory<T, ID extends Serializable> extends JpaR
 
     @SuppressWarnings("unchecked")
     private JpaRepositoryImplementation<T, ID> createDynamicJpaRepository(RepositoryInformation information, EntityManager entityManager) {
-        DynamicQueryFactory dynamicQueryFactory = DynamicQueryFactory.newInstance(information);
-        DynamicQuery dynamicQuery = dynamicQueryFactory.newInstance();
+        DynamicQuery findOneByDynamicQuery = createDynamicQuery(information, "findOneBy", DynamicQueryParams.class);
+        DynamicQuery findAllByDynamicQuery = createDynamicQuery(information, "findAllBy", DynamicQueryParams.class);
+        DynamicQuery findAllPagedDynamicQuery = createDynamicQuery(information, "findAllPaged", DynamicQueryParams.class, Pageable.class);
 
-        return new DynamicJpaRepositoryImpl<>((Class<T>) information.getDomainType(), entityManager, dynamicQuery);
+        return new DynamicJpaRepositoryImpl<>(
+            entityManager,
+            (Class<T>) information.getDomainType(),
+            findOneByDynamicQuery,
+            findAllByDynamicQuery,
+            findAllPagedDynamicQuery
+        );
+    }
+
+    private DynamicQuery createDynamicQuery(RepositoryInformation information, String methodName, Class<?>... parameters) {
+        try {
+            Method method = DynamicJpaRepository.class.getDeclaredMethod(methodName, parameters);
+            DynamicQueryFactory factory = DynamicQueryFactory.newInstance(information, method);
+            return factory.newInstance();
+        } catch (NoSuchMethodException e) {
+            throw new UnsupportedOperationException(e);
+        }
     }
 
 }

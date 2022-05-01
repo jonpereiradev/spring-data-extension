@@ -2,10 +2,10 @@ package com.github.jonpereiradev.dynamic.jpa.internal.expression;
 
 public interface QueryExpressionKey {
 
-    boolean isGlobalKey();
+    boolean isGlobal();
 
-    String getKey();
+    String getValue();
 
-    String getGlobalKey();
+    String getGlobalValue();
 
 }

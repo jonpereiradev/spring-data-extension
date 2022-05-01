@@ -2,9 +2,9 @@ package com.github.jonpereiradev.dynamic.jpa.repository;
 
 
 import com.github.jonpereiradev.dynamic.jpa.DynamicQueryParams;
+import com.github.jonpereiradev.dynamic.jpa.internal.expression.FilterExpressionKeyImpl;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpression;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionKey;
-import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionKeyImpl;
 import com.github.jonpereiradev.dynamic.jpa.internal.query.DynamicQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -34,26 +34,35 @@ final class DynamicJpaRepositoryImpl<T, ID extends Serializable> extends SimpleJ
 
     private final Class<T> entityClass;
     private final EntityManager entityManager;
-    private final DynamicQuery queryRef;
+    private final DynamicQuery findOneByDynamicQuery;
+    private final DynamicQuery findAllByDynamicQuery;
+    private final DynamicQuery findAllPagedDynamicQuery;
 
-    DynamicJpaRepositoryImpl(Class<T> entityClass, EntityManager entityManager, DynamicQuery queryRef) {
+    DynamicJpaRepositoryImpl(
+        EntityManager entityManager,
+        Class<T> entityClass,
+        DynamicQuery findOneByDynamicQuery,
+        DynamicQuery findAllByDynamicQuery,
+        DynamicQuery findAllPagedDynamicQuery) {
         super(entityClass, entityManager);
-        this.entityClass = entityClass;
         this.entityManager = entityManager;
-        this.queryRef = queryRef;
+        this.entityClass = entityClass;
+        this.findOneByDynamicQuery = findOneByDynamicQuery;
+        this.findAllByDynamicQuery = findAllByDynamicQuery;
+        this.findAllPagedDynamicQuery = findAllPagedDynamicQuery;
     }
 
     @Override
     public Optional<T> findOneBy(DynamicQueryParams dynamicQuery) {
-        String query = createQuery(dynamicQuery, "clazz");
-        List<T> allContent = findAll(dynamicQuery, query, -1, "clazz").getContent();
+        String query = createQuery(dynamicQuery, findOneByDynamicQuery, "findOneBy");
+        List<T> allContent = findAll(dynamicQuery, query, -1, findOneByDynamicQuery, "findOneBy").getContent();
         return allContent.isEmpty() ? Optional.empty() : Optional.of(allContent.get(0));
     }
 
     @Override
     public List<T> findAllBy(DynamicQueryParams dynamicQuery) {
-        String query = createQuery(dynamicQuery, "clazz");
-        return findAll(dynamicQuery, query, -1, "clazz").getContent();
+        String query = createQuery(dynamicQuery, findAllByDynamicQuery, "findAllBy");
+        return findAll(dynamicQuery, query, -1, findAllByDynamicQuery, "findAllBy").getContent();
     }
 
     @Override
@@ -61,9 +70,12 @@ final class DynamicJpaRepositoryImpl<T, ID extends Serializable> extends SimpleJ
         long totalRecords = -1;
 
         if (pageable != null) {
+            String countAllPagedQuery = createCountQuery(dynamicQuery, findAllPagedDynamicQuery, "findAllPaged");
+
             totalRecords = countBy(
                 dynamicQuery,
-                createCountQuery(dynamicQuery, "clazz"),
+                countAllPagedQuery,
+                findAllPagedDynamicQuery,
                 "clazz"
             );
 
@@ -72,19 +84,20 @@ final class DynamicJpaRepositoryImpl<T, ID extends Serializable> extends SimpleJ
             }
         }
 
-        return findAll(dynamicQuery, createQuery(dynamicQuery, "clazz"), totalRecords, "clazz");
+        String findAllPagedQuery = createQuery(dynamicQuery, findAllPagedDynamicQuery, "findAllPaged");
+        return findAll(dynamicQuery, findAllPagedQuery, totalRecords, findAllPagedDynamicQuery, "findAllPaged");
     }
 
-    private Page<T> findAll(DynamicQueryParams dynamicQuery, String query, long totalRecords, String prefix) {
-        TypedQuery<T> typedQuery = createQueryPageableOf(query, dynamicQuery, prefix);
+    private Page<T> findAll(DynamicQueryParams params, String query, long totalRecords, DynamicQuery dynamicQuery, String prefix) {
+        TypedQuery<T> typedQuery = createQueryPageableOf(query, params, dynamicQuery, prefix);
         List<T> resultList = typedQuery.getResultList();
 
         if (totalRecords == -1) {
             totalRecords = resultList.size();
         }
 
-        if (dynamicQuery.isPageable()) {
-            Pageable pageable = dynamicQuery.getPageable();
+        if (params.isPageable()) {
+            Pageable pageable = params.getPageable();
             int pageNumber = pageable.getPageNumber();
             int pageSize = pageable.getPageSize();
             PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, pageable.getSort());
@@ -95,27 +108,27 @@ final class DynamicJpaRepositoryImpl<T, ID extends Serializable> extends SimpleJ
             return Page.empty();
         }
 
-        PageRequest pageRequest = PageRequest.of(0, (int) totalRecords, dynamicQuery.getSort());
+        PageRequest pageRequest = PageRequest.of(0, (int) totalRecords, params.getSort());
         return totalRecords > 0 ? new PageImpl<>(resultList, pageRequest, totalRecords) : Page.empty(pageRequest);
     }
 
-    private TypedQuery<T> createQueryPageableOf(String query, DynamicQueryParams dynamicQuery, String prefix) {
-        TypedQuery<T> typedQuery = createQueryOf(dynamicQuery, query, entityClass, prefix);
+    private TypedQuery<T> createQueryPageableOf(String query, DynamicQueryParams params, DynamicQuery dynamicQuery, String prefix) {
+        TypedQuery<T> typedQuery = createQueryOf(params, query, entityClass, dynamicQuery, prefix);
 
-        if (dynamicQuery.isPageable()) {
-            createPageable(typedQuery, dynamicQuery);
+        if (params.isPageable()) {
+            createPageable(typedQuery, params);
         }
 
         return typedQuery;
     }
 
-    <E> TypedQuery<E> createQueryOf(DynamicQueryParams dynamicQuery, String query, Class<E> returnType, String prefix) {
+    <E> TypedQuery<E> createQueryOf(DynamicQueryParams params, String query, Class<E> returnType, DynamicQuery dynamicQuery, String prefix) {
         TypedQuery<E> typedQuery = entityManager.createQuery(query, returnType);
 
-        dynamicQuery.getParameters().forEach((key, value) -> {
-            QueryExpressionKey expressionKey = new QueryExpressionKeyImpl(prefix, key);
-            Optional<QueryExpression> filterValue = queryRef.getFilterValue(expressionKey);
-            filterValue.ifPresent(queryExpression -> setQueryParameter(dynamicQuery, typedQuery, queryExpression));
+        params.getParameters().forEach((key, value) -> {
+            QueryExpressionKey expressionKey = new FilterExpressionKeyImpl(prefix, key);
+            Optional<QueryExpression> filterValue = dynamicQuery.getExpression(expressionKey);
+            filterValue.ifPresent(queryExpression -> setQueryParameter(params, typedQuery, queryExpression));
         });
 
         return typedQuery;
@@ -133,8 +146,8 @@ final class DynamicJpaRepositoryImpl<T, ID extends Serializable> extends SimpleJ
         typedQuery.setParameter(expression.getBinding(), transformed);
     }
 
-    private long countBy(DynamicQueryParams dynamicQuery, String query, String prefix) {
-        TypedQuery<Long> typedQuery = createQueryOf(dynamicQuery, query, Long.class, prefix);
+    private long countBy(DynamicQueryParams params, String query, DynamicQuery dynamicQuery, String prefix) {
+        TypedQuery<Long> typedQuery = createQueryOf(params, query, Long.class, dynamicQuery, prefix);
         return getSingleResult(typedQuery).orElse(0L);
     }
 
@@ -148,14 +161,14 @@ final class DynamicJpaRepositoryImpl<T, ID extends Serializable> extends SimpleJ
         DynamicQueryPageable.setQueryPageable(query, dynamicQuery);
     }
 
-    public String createQuery(DynamicQueryParams dynamicQuery, String prefix) {
-        DynamicQueryBuilderImpl queryBuilder = new DynamicQueryBuilderImpl(queryRef);
-        return queryBuilder.select().join(dynamicQuery).where(dynamicQuery, prefix).sorted(dynamicQuery).query();
+    private String createQuery(DynamicQueryParams params, DynamicQuery dynamicQuery, String prefix) {
+        DynamicQueryBuilderImpl queryBuilder = new DynamicQueryBuilderImpl(dynamicQuery);
+        return queryBuilder.select().join(params).where(params, prefix).sorted(params).query();
     }
 
-    public String createCountQuery(DynamicQueryParams dynamicQuery, String prefix) {
-        DynamicQueryBuilderImpl queryBuilder = new DynamicQueryBuilderImpl(queryRef);
-        return queryBuilder.count().join(dynamicQuery).where(dynamicQuery, prefix).query();
+    private String createCountQuery(DynamicQueryParams params, DynamicQuery dynamicQuery, String prefix) {
+        DynamicQueryBuilderImpl queryBuilder = new DynamicQueryBuilderImpl(dynamicQuery);
+        return queryBuilder.count().join(params).where(params, prefix).query();
     }
 
 }

@@ -56,7 +56,9 @@ class QueryExpressionFilterFactoryTest {
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals(QueryExpressionFilterFactory.GLOBAL_PREFIX + "id", expression.getKey());
+        QueryExpressionKey expressionKey = expression.getKey();
+
+        assertEquals("filter.clazz.id", expressionKey.getValue());
         assertEquals("id", expression.getBinding());
         assertEquals("and any.id = :id", expression.getClause());
     }
@@ -72,7 +74,9 @@ class QueryExpressionFilterFactoryTest {
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals(QueryExpressionFilterFactory.GLOBAL_PREFIX + "id", expression.getKey());
+        QueryExpressionKey expressionKey = expression.getKey();
+
+        assertEquals("filter.clazz.id", expressionKey.getValue());
         assertEquals("id", expression.getBinding());
         assertEquals("and entity.id = :id", expression.getClause());
     }
@@ -90,7 +94,9 @@ class QueryExpressionFilterFactoryTest {
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals(QueryExpressionFilterFactory.GLOBAL_PREFIX + "none", expression.getKey());
+        QueryExpressionKey expressionKey = expression.getKey();
+
+        assertEquals("filter.clazz.none", expressionKey.getValue());
         assertEquals("none", expression.getBinding());
         assertEquals("and any.none.id = :none", expression.getClause());
     }
@@ -100,15 +106,17 @@ class QueryExpressionFilterFactoryTest {
         doReturn(Repositories.None.class).when(metadata).getRepositoryInterface();
         expressionFactory = new QueryExpressionFilterFactory(metadata, reader);
 
-        Field id = Entities.Join.class.getDeclaredField("none");
-        JpaAnnotation<JoinColumn> jpaAnnotation = new JpaAnnotation<>(id, id.getAnnotation(JoinColumn.class));
+        Field none = Entities.Join.class.getDeclaredField("none");
+        JpaAnnotation<JoinColumn> jpaAnnotation = new JpaAnnotation<>(none, none.getAnnotation(JoinColumn.class));
         doReturn(singletonList(jpaAnnotation)).when(reader).findJpaAnnotations();
 
         Set<QueryExpression> expressions = expressionFactory.createExpressions("testing");
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals(QueryExpressionFilterFactory.GLOBAL_PREFIX + "none", expression.getKey());
+        QueryExpressionKey expressionKey = expression.getKey();
+
+        assertEquals("filter.clazz.none", expressionKey.getValue());
         assertEquals("none", expression.getBinding());
         assertEquals("and testing.none.id = :none", expression.getClause());
     }
@@ -122,7 +130,9 @@ class QueryExpressionFilterFactoryTest {
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals(QueryExpressionFilterFactory.GLOBAL_PREFIX + "id", expression.getKey());
+        QueryExpressionKey expressionKey = expression.getKey();
+
+        assertEquals("filter.clazz.id", expressionKey.getValue());
         assertEquals("id", expression.getBinding());
         assertEquals("and any.id = :id", expression.getClause());
     }
@@ -136,7 +146,9 @@ class QueryExpressionFilterFactoryTest {
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals(QueryExpressionFilterFactory.GLOBAL_PREFIX + "id", expression.getKey());
+        QueryExpressionKey expressionKey = expression.getKey();
+
+        assertEquals("filter.clazz.id", expressionKey.getValue());
         assertEquals("id", expression.getBinding());
         assertEquals("and testing.id = :id", expression.getClause());
     }
@@ -150,7 +162,9 @@ class QueryExpressionFilterFactoryTest {
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals(QueryExpressionFilterFactory.GLOBAL_PREFIX + "id", expression.getKey());
+        QueryExpressionKey expressionKey = expression.getKey();
+
+        assertEquals("filter.clazz.id", expressionKey.getValue());
         assertEquals("id", expression.getBinding());
         assertEquals("and any.id = :id", expression.getClause());
     }
@@ -164,7 +178,9 @@ class QueryExpressionFilterFactoryTest {
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals(QueryExpressionFilterFactory.GLOBAL_PREFIX + "id", expression.getKey());
+        QueryExpressionKey expressionKey = expression.getKey();
+
+        assertEquals("filter.clazz.id", expressionKey.getValue());
         assertEquals("id", expression.getBinding());
         assertEquals("and testing.id = :id", expression.getClause());
     }
@@ -178,7 +194,9 @@ class QueryExpressionFilterFactoryTest {
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals(QueryExpressionFilterFactory.GLOBAL_PREFIX + "id", expression.getKey());
+        QueryExpressionKey expressionKey = expression.getKey();
+
+        assertEquals("filter.clazz.id", expressionKey.getValue());
         assertEquals("id", expression.getBinding());
         assertEquals("and any.id is not null", expression.getClause());
     }
@@ -192,7 +210,9 @@ class QueryExpressionFilterFactoryTest {
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals(QueryExpressionFilterFactory.GLOBAL_PREFIX + "id", expression.getKey());
+        QueryExpressionKey expressionKey = expression.getKey();
+
+        assertEquals("filter.clazz.id", expressionKey.getValue());
         assertEquals("id", expression.getBinding());
         assertEquals("and testing.id is not null", expression.getClause());
     }
@@ -208,7 +228,9 @@ class QueryExpressionFilterFactoryTest {
         assertEquals(1, expressions.size());
 
         QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals("filter." + method.getName() + ".id", expression.getKey());
+        QueryExpressionKey expressionKey = expression.getKey();
+
+        assertEquals("filter." + method.getName() + ".id", expressionKey.getValue());
         assertEquals("id", expression.getBinding());
         assertEquals("and filter.id = :id", expression.getClause());
     }
@@ -223,11 +245,11 @@ class QueryExpressionFilterFactoryTest {
 
         assertEquals(2, expressions.size());
 
-        assertEquals("filter." + method.getName() + ".id", expressions.get(0).getKey());
+        assertEquals("filter." + method.getName() + ".id", expressions.get(0).getKey().getValue());
         assertEquals("id", expressions.get(0).getBinding());
         assertEquals("and any.id = :id", expressions.get(0).getClause());
 
-        assertEquals("filter." + method.getName() + ".name", expressions.get(1).getKey());
+        assertEquals("filter." + method.getName() + ".name", expressions.get(1).getKey().getValue());
         assertEquals("name", expressions.get(1).getBinding());
         assertEquals("and any.name = :name", expressions.get(1).getClause());
     }
@@ -242,11 +264,11 @@ class QueryExpressionFilterFactoryTest {
 
         assertEquals(2, expressions.size());
 
-        assertEquals("filter." + method.getName() + ".id", expressions.get(0).getKey());
+        assertEquals("filter." + method.getName() + ".id", expressions.get(0).getKey().getValue());
         assertEquals("id", expressions.get(0).getBinding());
         assertEquals("and entity.id = :id", expressions.get(0).getClause());
 
-        assertEquals("filter." + method.getName() + ".name", expressions.get(1).getKey());
+        assertEquals("filter." + method.getName() + ".name", expressions.get(1).getKey().getValue());
         assertEquals("name", expressions.get(1).getBinding());
         assertEquals("and entity.name = :name", expressions.get(1).getClause());
     }

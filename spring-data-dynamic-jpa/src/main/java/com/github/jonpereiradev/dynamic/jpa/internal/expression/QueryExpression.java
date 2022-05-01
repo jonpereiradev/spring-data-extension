@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 public interface QueryExpression {
 
-    String getKey();
+    QueryExpressionKey getKey();
 
     String getBinding();
 
