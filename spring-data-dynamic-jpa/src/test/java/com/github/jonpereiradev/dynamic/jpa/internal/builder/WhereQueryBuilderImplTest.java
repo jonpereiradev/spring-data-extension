@@ -6,7 +6,6 @@ import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionI
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspector;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorResult;
-import com.github.jonpereiradev.dynamic.jpa.repository.DynamicQueryMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +28,7 @@ class WhereQueryBuilderImplTest {
     void must_create_query_with_empty_where_from_expression() {
         result = inspector.inspect("");
         whereBuilder = new WhereQueryBuilderImpl(new StringBuilder(), result);
-        expression = new QueryExpressionImpl(new FilterExpressionKeyImpl("", "name"), "and entity.name is not null", DynamicQueryMatchers::none);
+        expression = new QueryExpressionImpl(new FilterExpressionKeyImpl("", "name"), "and entity.name is not null");
 
         String query = whereBuilder.and(expression).toString();
         assertEquals("where entity.name is not null", query);
@@ -39,7 +38,7 @@ class WhereQueryBuilderImplTest {
     void must_create_query_with_where_from_expression() {
         result = inspector.inspect("where entity.id = :id");
         whereBuilder = new WhereQueryBuilderImpl(new StringBuilder("where entity.id = :id"), result);
-        expression = new QueryExpressionImpl(new FilterExpressionKeyImpl("", "name"), "and entity.name is not null", DynamicQueryMatchers::none);
+        expression = new QueryExpressionImpl(new FilterExpressionKeyImpl("", "name"), "and entity.name is not null");
 
         String query = whereBuilder.and(expression).toString();
         assertEquals("where entity.id = :id and entity.name is not null", query);

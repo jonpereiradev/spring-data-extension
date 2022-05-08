@@ -1,7 +1,6 @@
 package com.github.jonpereiradev.dynamic.jpa;
 
 
-import com.github.jonpereiradev.dynamic.jpa.repository.DynamicQueryMatchers;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -11,15 +10,16 @@ import org.springframework.util.MultiValueMap;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static com.github.jonpereiradev.dynamic.jpa.converter.DynamicTypeConverter.convertValue;
+
 
 class DynamicQueryParamsImpl implements DynamicQueryParams {
 
-    MultiValueMap<String, Object> parameters;
+    private MultiValueMap<String, Object> parameters;
 
     private Pageable pageable;
     private Sort sort;
@@ -46,36 +46,24 @@ class DynamicQueryParamsImpl implements DynamicQueryParams {
     }
 
     @Override
-    public Object getObject(String name) {
-        return getObject(name, null);
-    }
-
-    @Override
-    public Object getObject(String name, Object defaultValue) {
-        return isPresent(name) ? parameters.getFirst(name) : defaultValue;
-    }
-
-    @Override
-    public List<Object> getObjects(String name) {
-        Object first = parameters.getFirst(name);
-
-        if (first != null && first.toString().contains(",")) {
-            String value = first.toString();
-            String[] split = value.split(",");
-            return new ArrayList<>(Arrays.asList(split));
-        }
-
-        return parameters.getOrDefault(name, Collections.emptyList());
-    }
-
-    @Override
     public String getString(String name) {
         return getString(name, null);
     }
 
     @Override
     public String getString(String name, String defaultValue) {
-        return isPresent(name) ? DynamicQueryMatchers.toString(parameters.getFirst(name)) : defaultValue;
+        return isPresent(name) ? convertValue(String.class, parameters.getFirst(name)) : defaultValue;
+    }
+
+    @Override
+    public String[] getStringArray(String name) {
+        String first = getString(name);
+
+        if (first != null && first.contains(",")) {
+            return first.split(",");
+        }
+
+        return new String[]{first};
     }
 
     @Override
@@ -85,7 +73,7 @@ class DynamicQueryParamsImpl implements DynamicQueryParams {
 
     @Override
     public Long getLong(String name, Long defaultValue) {
-        return isPresent(name) ? DynamicQueryMatchers.toLong(parameters.getFirst(name)) : defaultValue;
+        return isPresent(name) ? convertValue(Long.class, parameters.getFirst(name)) : defaultValue;
     }
 
     @Override
@@ -94,7 +82,7 @@ class DynamicQueryParamsImpl implements DynamicQueryParams {
             throw new IllegalArgumentException(name);
         }
 
-        return DynamicQueryMatchers.toLong(parameters.getFirst(name));
+        return convertValue(Long.class, parameters.getFirst(name));
     }
 
     @Override
@@ -104,7 +92,7 @@ class DynamicQueryParamsImpl implements DynamicQueryParams {
 
     @Override
     public Integer getInteger(String name, Integer defaultValue) {
-        return isPresent(name) ? DynamicQueryMatchers.toInteger(parameters.getFirst(name)) : defaultValue;
+        return isPresent(name) ? convertValue(Integer.class, parameters.getFirst(name)) : defaultValue;
     }
 
     @Override
@@ -114,7 +102,7 @@ class DynamicQueryParamsImpl implements DynamicQueryParams {
 
     @Override
     public Boolean getBoolean(String name, Boolean defaultValue) {
-        return isPresent(name) ? DynamicQueryMatchers.toBoolean(parameters.getFirst(name)) : defaultValue;
+        return isPresent(name) ? convertValue(Boolean.class, parameters.getFirst(name)) : defaultValue;
     }
 
     @Override
@@ -124,7 +112,7 @@ class DynamicQueryParamsImpl implements DynamicQueryParams {
 
     @Override
     public LocalDate getLocalDate(String name, LocalDate defaultValue) {
-        return isPresent(name) ? DynamicQueryMatchers.toLocalDate(parameters.getFirst(name)) : defaultValue;
+        return isPresent(name) ? convertValue(LocalDate.class, parameters.getFirst(name)) : defaultValue;
     }
 
     @Override
@@ -134,14 +122,14 @@ class DynamicQueryParamsImpl implements DynamicQueryParams {
 
     @Override
     public LocalDateTime getLocalDateTime(String name, LocalDateTime defaultValue) {
-        return isPresent(name) ? DynamicQueryMatchers.toLocalDateTime(parameters.getFirst(name)) : defaultValue;
+        return isPresent(name) ? convertValue(LocalDateTime.class, parameters.getFirst(name)) : defaultValue;
     }
 
     @Override
     public boolean isPresent(String name) {
         return parameters.containsKey(name)
             && parameters.getFirst(name) != null
-            && DynamicQueryMatchers.toString(parameters.getFirst(name)) != null;
+            && convertValue(String.class, parameters.getFirst(name)) != null;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.github.jonpereiradev.dynamic.jpa.internal.expression;
 
 
-import java.util.function.Function;
+import com.github.jonpereiradev.dynamic.jpa.converter.TypeConverter;
 
 
 public interface QueryExpression {
@@ -14,6 +14,6 @@ public interface QueryExpression {
 
     boolean isFeature();
 
-    Function<Object, ?> getMatcher();
+    TypeConverter<?> getConverter();
 
 }

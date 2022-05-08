@@ -5,7 +5,6 @@ import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspector;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorResult;
 import com.github.jonpereiradev.dynamic.jpa.repository.DynamicJoin;
-import com.github.jonpereiradev.dynamic.jpa.repository.DynamicQueryMatchers;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.core.RepositoryMetadata;
 
@@ -24,20 +23,6 @@ public final class QueryExpressionJoinFactory implements QueryExpressionFactory 
         this.repositoryInterface = metadata.getRepositoryInterface();
         this.defaultAliasName = metadata.getDomainType().getSimpleName().toLowerCase();
         this.inspector = QueryInspectorFactory.newInspector();
-    }
-
-    @Override
-    public Set<QueryExpression> createExpressions() {
-        Set<QueryExpression> expressions = new LinkedHashSet<>();
-        createExpressions(expressions, repositoryInterface, defaultAliasName, null);
-        return expressions;
-    }
-
-    @Override
-    public Set<QueryExpression> createExpressions(String aliasName) {
-        Set<QueryExpression> expressions = new LinkedHashSet<>();
-        createExpressions(expressions, repositoryInterface, aliasName, null);
-        return expressions;
     }
 
     @Override
@@ -89,11 +74,11 @@ public final class QueryExpressionJoinFactory implements QueryExpressionFactory 
     }
 
     private QueryExpression newGlobalExpression(String name, String expression) {
-        return new QueryExpressionImpl(new JoinExpressionKeyImpl(name), expression, DynamicQueryMatchers::none);
+        return new QueryExpressionImpl(new JoinExpressionKeyImpl(name), expression);
     }
 
     private QueryExpression newExpression(String prefix, String name, String expression) {
-        return new QueryExpressionImpl(new JoinExpressionKeyImpl(prefix, name), expression, DynamicQueryMatchers::none);
+        return new QueryExpressionImpl(new JoinExpressionKeyImpl(prefix, name), expression);
     }
 
 }

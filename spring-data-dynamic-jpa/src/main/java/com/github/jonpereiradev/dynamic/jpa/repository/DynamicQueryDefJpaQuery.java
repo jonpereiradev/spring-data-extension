@@ -5,12 +5,10 @@ import com.github.jonpereiradev.dynamic.jpa.DynamicQueryParams;
 import com.github.jonpereiradev.dynamic.jpa.internal.builder.DynamicQueryBuilder;
 import com.github.jonpereiradev.dynamic.jpa.internal.builder.FromQueryBuilder;
 import com.github.jonpereiradev.dynamic.jpa.internal.builder.WhereQueryBuilder;
+import com.github.jonpereiradev.dynamic.jpa.internal.expression.FilterExpressionKeyImpl;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.JoinExpressionKeyImpl;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpression;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionKey;
-import com.github.jonpereiradev.dynamic.jpa.internal.expression.FilterExpressionKeyImpl;
-import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspector;
-import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.query.DynamicQuery;
 import org.springframework.data.jpa.repository.query.AbstractJpaQuery;
 import org.springframework.data.jpa.repository.query.JpaParametersParameterAccessor;
@@ -31,12 +29,10 @@ final class DynamicQueryDefJpaQuery extends AbstractJpaQuery {
     private static final Pattern PATTERN_IN_CLAUSE = Pattern.compile(".*\\sin\\s?\\(.*");
 
     private final DynamicQuery dynamicQuery;
-    private final QueryInspector inspector;
 
     DynamicQueryDefJpaQuery(JpaQueryMethod jpaQueryMethod, EntityManager entityManager, DynamicQuery dynamicQuery) {
         super(jpaQueryMethod, entityManager);
         this.dynamicQuery = dynamicQuery;
-        this.inspector = QueryInspectorFactory.newInspector();
         new ValidateQuery().validate(dynamicQuery, jpaQueryMethod);
     }
 
@@ -55,7 +51,7 @@ final class DynamicQueryDefJpaQuery extends AbstractJpaQuery {
         Query query = createQueryOf(params, selectQuery);
 
         if (params.isPageable()) {
-            createPageable(query, params);
+            DynamicQueryPageable.setQueryPageable(query, params);
         }
 
         return query;
@@ -79,10 +75,10 @@ final class DynamicQueryDefJpaQuery extends AbstractJpaQuery {
     private Query createQueryOf(DynamicQueryParams params, String queryString) {
         Query query = getEntityManager().createQuery(queryString);
 
-        params.getParameters().forEach((key, value) -> {
+        params.getParameters().forEach((key, ignored) -> {
             QueryExpressionKey expressionKey = new FilterExpressionKeyImpl(getQueryMethod().getName(), key);
-            Optional<QueryExpression> restriction = dynamicQuery.getExpression(expressionKey);
-            restriction.ifPresent(o -> setQueryParameter(params, query, o));
+            Optional<QueryExpression> expression = dynamicQuery.getExpression(expressionKey);
+            expression.ifPresent(value -> setQueryParameter(params, query, value));
         });
 
         return query;
@@ -90,18 +86,18 @@ final class DynamicQueryDefJpaQuery extends AbstractJpaQuery {
 
     private void setQueryParameter(DynamicQueryParams params, Query query, QueryExpression expression) {
         if (!expression.isFeature()) {
-            Object transformed = expression.getMatcher().apply(params.getObject(expression.getBinding()));
+            Object transformed;
 
             if (PATTERN_IN_CLAUSE.matcher(expression.getClause()).matches()) {
-                transformed = expression.getMatcher().apply(params.getObjects(expression.getBinding()));
+                String[] parameters = params.getStringArray(expression.getBinding());
+                transformed = expression.getConverter().convertValueArray(parameters);
+            } else {
+                String parameter = params.getString(expression.getBinding());
+                transformed = expression.getConverter().convertValue(parameter);
             }
 
             query.setParameter(expression.getBinding(), transformed);
         }
-    }
-
-    private void createPageable(Query query, DynamicQueryParams dynamicQuery) {
-        DynamicQueryPageable.setQueryPageable(query, dynamicQuery);
     }
 
     private void addDynamicJoin(DynamicQueryParams params, FromQueryBuilder fromQueryBuilder) {

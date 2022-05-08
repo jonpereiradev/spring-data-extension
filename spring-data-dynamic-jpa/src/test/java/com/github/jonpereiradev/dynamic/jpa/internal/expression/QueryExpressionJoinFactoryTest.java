@@ -33,34 +33,6 @@ class QueryExpressionJoinFactoryTest {
     }
 
     @Test
-    void must_create_expressions_from_repository_class_with_default_alias() {
-        doReturn(Repositories.GlobalJoin.class).when(metadata).getRepositoryInterface();
-        expressionFactory = new QueryExpressionJoinFactory(metadata);
-
-        Set<QueryExpression> expressions = expressionFactory.createExpressions();
-        assertEquals(1, expressions.size());
-
-        QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals("join.clazz.user", expression.getKey().getValue());
-        assertEquals("user", expression.getBinding());
-        assertEquals("join any.user user", expression.getClause());
-    }
-
-    @Test
-    void must_create_expressions_from_repository_class_with_different_alias() {
-        doReturn(Repositories.GlobalJoin.class).when(metadata).getRepositoryInterface();
-        expressionFactory = new QueryExpressionJoinFactory(metadata);
-
-        Set<QueryExpression> expressions = expressionFactory.createExpressions("method");
-        assertEquals(1, expressions.size());
-
-        QueryExpression expression = expressions.stream().findFirst().orElse(null);
-        assertEquals("join.clazz.user", expression.getKey().getValue());
-        assertEquals("user", expression.getBinding());
-        assertEquals("join method.user user", expression.getClause());
-    }
-
-    @Test
     void must_create_expressions_from_repository_method() throws NoSuchMethodException {
         doReturn(Repositories.MethodJoin.class).when(metadata).getRepositoryInterface();
         expressionFactory = new QueryExpressionJoinFactory(metadata);

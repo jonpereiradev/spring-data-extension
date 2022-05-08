@@ -18,7 +18,7 @@ final class DynamicQueryImpl implements DynamicQuery {
     private final Class<?> entityClass;
     private final Map<QueryExpressionKey, QueryExpression> expressions;
 
-    DynamicQueryImpl(String selectQuery, String countQuery, Class<?> entityClass, Class<?> repositoryInterface) {
+    DynamicQueryImpl(String selectQuery, String countQuery, Class<?> entityClass) {
         QueryInspector inspector = QueryInspectorFactory.newInspector();
         this.selectQuery = inspector.inspect(selectQuery);
         this.countQuery = inspector.inspect(countQuery);

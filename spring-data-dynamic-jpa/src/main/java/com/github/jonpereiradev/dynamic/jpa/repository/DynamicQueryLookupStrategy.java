@@ -65,8 +65,8 @@ final class DynamicQueryLookupStrategy {
         }
 
         private RepositoryQuery createJpaRepositoryQuery(RepositoryMetadata metadata, Method method, ProjectionFactory factory) {
-            DynamicQueryFactory dynamicQueryFactory = DynamicQueryFactory.newInstance(metadata, method);
-            DynamicQuery dynamicQuery = dynamicQueryFactory.newInstance();
+            DynamicQueryFactory dynamicQueryFactory = DynamicQueryFactory.newInstance(metadata);
+            DynamicQuery dynamicQuery = dynamicQueryFactory.newInstance(method);
             JpaQueryMethod jpaQueryMethod = getJpaQueryMethod(method, metadata, factory);
 
             return new DynamicQueryDefJpaQuery(jpaQueryMethod, entityManager, dynamicQuery);

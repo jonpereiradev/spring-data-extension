@@ -16,30 +16,21 @@ import org.springframework.data.repository.core.RepositoryMetadata;
 import java.lang.reflect.Method;
 
 
-final class DynamicQueryMethodFactory implements DynamicQueryFactory {
+final class DynamicQueryFactoryImpl implements DynamicQueryFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(DynamicQueryMethodFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(DynamicQueryFactory.class);
 
     private final RepositoryMetadata metadata;
-    private final Method method;
 
-    DynamicQueryMethodFactory(RepositoryMetadata metadata, Method method) {
+    DynamicQueryFactoryImpl(RepositoryMetadata metadata) {
         this.metadata = metadata;
-        this.method = method;
     }
 
     @Override
-    public DynamicQuery newInstance() {
+    public DynamicQuery newInstance(Method method) {
         String selectQuery = createSelectQuery(method);
         String countQuery = createCountQuery(method);
-
-        DynamicQuery dynamicQuery = new DynamicQueryImpl(
-            selectQuery,
-            countQuery,
-            metadata.getDomainType(),
-            metadata.getRepositoryInterface()
-        );
-
+        DynamicQuery dynamicQuery = new DynamicQueryImpl(selectQuery, countQuery, metadata.getDomainType());
         String logKeyName = metadata.getRepositoryInterface().getSimpleName() + "." + method.getName();
 
         if (logger.isDebugEnabled()) {

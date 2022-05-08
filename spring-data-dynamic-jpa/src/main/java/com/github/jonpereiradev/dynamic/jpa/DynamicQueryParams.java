@@ -7,7 +7,6 @@ import org.springframework.util.MultiValueMap;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 
 public interface DynamicQueryParams {
@@ -20,15 +19,15 @@ public interface DynamicQueryParams {
         return new DynamicQueryParamsImpl();
     }
 
-    Object getObject(String name);
+    void addParameter(String name, Object value);
 
-    Object getObject(String name, Object defaultValue);
-
-    List<Object> getObjects(String name);
+    void setParameter(String name, Object value);
 
     String getString(String name);
 
     String getString(String name, String defaultValue);
+
+    String[] getStringArray(String name);
 
     Long getLong(String name);
 
@@ -62,7 +61,4 @@ public interface DynamicQueryParams {
 
     MultiValueMap<String, Object> getParameters();
 
-    void addParameter(String name, Object value);
-
-    void setParameter(String name, Object value);
 }

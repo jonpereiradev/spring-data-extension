@@ -19,12 +19,11 @@ public @interface DynamicFilter {
 
     String binding();
 
-    Class<?> type() default AutoDetectType.class;
-
-    class AutoDetectType {
-    }
-
-    class Feature {
-    }
+    /**
+     * It can be used to specify a type like String.class or Long.class, or it can be used to define a TypeConverter implementation.
+     *
+     * @return class type or class type converter.
+     */
+    Class<?> type() default String.class;
 
 }

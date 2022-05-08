@@ -15,10 +15,10 @@ import java.util.Optional;
 @NoRepositoryBean
 public interface DynamicJpaRepository<T, ID extends Serializable> extends JpaRepository<T, ID> {
 
-    Optional<T> findOneBy(DynamicQueryParams dynamicQuery);
+    Optional<T> findOneBy(DynamicQueryParams params);
 
-    List<T> findAllBy(DynamicQueryParams dynamicQuery);
+    List<T> findAllBy(DynamicQueryParams params);
 
-    Page<T> findAllPaged(DynamicQueryParams dynamicQuery, Pageable pageable);
+    Page<T> findAllPaged(DynamicQueryParams params, Pageable pageable);
 
 }

@@ -12,8 +12,8 @@ final class DynamicQueryPageable {
     private DynamicQueryPageable() {
     }
 
-    static void setQueryPageable(Query query, DynamicQueryParams dynamicQuery) {
-        Pageable pageable = dynamicQuery.getPageable();
+    static void setQueryPageable(Query query, DynamicQueryParams params) {
+        Pageable pageable = params.getPageable();
         int pageNumber = pageable.getPageNumber();
 
         if (pageNumber < 0) {

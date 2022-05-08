@@ -77,9 +77,10 @@ final class DynamicJpaRepositoryFactory<T, ID extends Serializable> extends JpaR
 
     @SuppressWarnings("unchecked")
     private JpaRepositoryImplementation<T, ID> createDynamicJpaRepository(RepositoryInformation information, EntityManager entityManager) {
-        DynamicQuery findOneByDynamicQuery = createDynamicQuery(information, "findOneBy", DynamicQueryParams.class);
-        DynamicQuery findAllByDynamicQuery = createDynamicQuery(information, "findAllBy", DynamicQueryParams.class);
-        DynamicQuery findAllPagedDynamicQuery = createDynamicQuery(information, "findAllPaged", DynamicQueryParams.class, Pageable.class);
+        DynamicQueryFactory factory = DynamicQueryFactory.newInstance(information);
+        DynamicQuery findOneByDynamicQuery = createDynamicQuery(information, factory, "findOneBy", DynamicQueryParams.class);
+        DynamicQuery findAllByDynamicQuery = createDynamicQuery(information, factory, "findAllBy", DynamicQueryParams.class);
+        DynamicQuery findAllPagedDynamicQuery = createDynamicQuery(information, factory, "findAllPaged", DynamicQueryParams.class, Pageable.class);
 
         return new DynamicJpaRepositoryImpl<>(
             entityManager,
@@ -90,14 +91,22 @@ final class DynamicJpaRepositoryFactory<T, ID extends Serializable> extends JpaR
         );
     }
 
-    private DynamicQuery createDynamicQuery(RepositoryInformation information, String methodName, Class<?>... parameters) {
+    private DynamicQuery createDynamicQuery(RepositoryInformation information, DynamicQueryFactory factory, String methodName, Class<?>... parameters) {
+        DynamicQuery dynamicQuery;
+
         try {
-            Method method = DynamicJpaRepository.class.getDeclaredMethod(methodName, parameters);
-            DynamicQueryFactory factory = DynamicQueryFactory.newInstance(information, method);
-            return factory.newInstance();
+            information.getRepositoryInterface().getDeclaredMethod(methodName, parameters);
+            dynamicQuery = null;
         } catch (NoSuchMethodException e) {
-            throw new UnsupportedOperationException(e);
+            try {
+                Method method = DynamicJpaRepository.class.getDeclaredMethod(methodName, parameters);
+                dynamicQuery = factory.newInstance(method);
+            } catch (NoSuchMethodException e2) {
+                throw new UnsupportedOperationException(e2);
+            }
         }
+
+        return dynamicQuery;
     }
 
 }

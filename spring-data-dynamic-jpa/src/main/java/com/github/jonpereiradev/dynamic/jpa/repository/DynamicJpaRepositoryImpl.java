@@ -2,7 +2,12 @@ package com.github.jonpereiradev.dynamic.jpa.repository;
 
 
 import com.github.jonpereiradev.dynamic.jpa.DynamicQueryParams;
+import com.github.jonpereiradev.dynamic.jpa.internal.builder.DynamicQueryBuilder;
+import com.github.jonpereiradev.dynamic.jpa.internal.builder.FromQueryBuilder;
+import com.github.jonpereiradev.dynamic.jpa.internal.builder.OrderQueryBuilder;
+import com.github.jonpereiradev.dynamic.jpa.internal.builder.WhereQueryBuilder;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.FilterExpressionKeyImpl;
+import com.github.jonpereiradev.dynamic.jpa.internal.expression.JoinExpressionKeyImpl;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpression;
 import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionKey;
 import com.github.jonpereiradev.dynamic.jpa.internal.query.DynamicQuery;
@@ -53,39 +58,39 @@ final class DynamicJpaRepositoryImpl<T, ID extends Serializable> extends SimpleJ
     }
 
     @Override
-    public Optional<T> findOneBy(DynamicQueryParams dynamicQuery) {
-        String query = createQuery(dynamicQuery, findOneByDynamicQuery, "findOneBy");
-        List<T> allContent = findAll(dynamicQuery, query, -1, findOneByDynamicQuery, "findOneBy").getContent();
+    public Optional<T> findOneBy(DynamicQueryParams params) {
+        String query = createQuery(params, findOneByDynamicQuery, "findOneBy");
+        List<T> allContent = findAll(params, query, -1, findOneByDynamicQuery, "findOneBy").getContent();
         return allContent.isEmpty() ? Optional.empty() : Optional.of(allContent.get(0));
     }
 
     @Override
-    public List<T> findAllBy(DynamicQueryParams dynamicQuery) {
-        String query = createQuery(dynamicQuery, findAllByDynamicQuery, "findAllBy");
-        return findAll(dynamicQuery, query, -1, findAllByDynamicQuery, "findAllBy").getContent();
+    public List<T> findAllBy(DynamicQueryParams params) {
+        String query = createQuery(params, findAllByDynamicQuery, "findAllBy");
+        return findAll(params, query, -1, findAllByDynamicQuery, "findAllBy").getContent();
     }
 
     @Override
-    public Page<T> findAllPaged(DynamicQueryParams dynamicQuery, Pageable pageable) {
+    public Page<T> findAllPaged(DynamicQueryParams params, Pageable pageable) {
         long totalRecords = -1;
 
         if (pageable != null) {
-            String countAllPagedQuery = createCountQuery(dynamicQuery, findAllPagedDynamicQuery, "findAllPaged");
+            String countAllPagedQuery = createCountQuery(params, findAllPagedDynamicQuery, "findAllPaged");
 
             totalRecords = countBy(
-                dynamicQuery,
+                params,
                 countAllPagedQuery,
                 findAllPagedDynamicQuery,
-                "clazz"
+                "findAllPaged"
             );
 
-            if (totalRecords < 1) {
+            if (totalRecords == 0) {
                 return Page.empty();
             }
         }
 
-        String findAllPagedQuery = createQuery(dynamicQuery, findAllPagedDynamicQuery, "findAllPaged");
-        return findAll(dynamicQuery, findAllPagedQuery, totalRecords, findAllPagedDynamicQuery, "findAllPaged");
+        String findAllPagedQuery = createQuery(params, findAllPagedDynamicQuery, "findAllPaged");
+        return findAll(params, findAllPagedQuery, totalRecords, findAllPagedDynamicQuery, "findAllPaged");
     }
 
     private Page<T> findAll(DynamicQueryParams params, String query, long totalRecords, DynamicQuery dynamicQuery, String prefix) {
@@ -134,13 +139,15 @@ final class DynamicJpaRepositoryImpl<T, ID extends Serializable> extends SimpleJ
         return typedQuery;
     }
 
-    private <E> void setQueryParameter(DynamicQueryParams dynamicQuery, TypedQuery<E> typedQuery, QueryExpression expression) {
+    private <E> void setQueryParameter(DynamicQueryParams params, TypedQuery<E> typedQuery, QueryExpression expression) {
         Object transformed;
 
         if (PATTERN_IN_CLAUSE.matcher(expression.getClause()).matches()) {
-            transformed = expression.getMatcher().apply(dynamicQuery.getObjects(expression.getBinding()));
+            String[] parameters = params.getStringArray(expression.getBinding());
+            transformed = expression.getConverter().convertValueArray(parameters);
         } else {
-            transformed = expression.getMatcher().apply(dynamicQuery.getObject(expression.getBinding()));
+            String parameter = params.getString(expression.getBinding());
+            transformed = expression.getConverter().convertValue(parameter);
         }
 
         typedQuery.setParameter(expression.getBinding(), transformed);
@@ -162,8 +169,37 @@ final class DynamicJpaRepositoryImpl<T, ID extends Serializable> extends SimpleJ
     }
 
     private String createQuery(DynamicQueryParams params, DynamicQuery dynamicQuery, String prefix) {
-        DynamicQueryBuilderImpl queryBuilder = new DynamicQueryBuilderImpl(dynamicQuery);
-        return queryBuilder.select().join(params).where(params, prefix).sorted(params).query();
+        DynamicQueryBuilder queryBuilder = DynamicQueryBuilder.newInstance(entityClass);
+        FromQueryBuilder fromBuilder = queryBuilder.select(dynamicQuery.getSelectQuery()).from().join();
+
+        params.getParameters().forEach((key, value) -> {
+            QueryExpressionKey expressionKey = new JoinExpressionKeyImpl(prefix, key);
+            Optional<QueryExpression> joinValue = dynamicQuery.getExpression(expressionKey);
+            joinValue.ifPresent(fromBuilder::join);
+        });
+
+        WhereQueryBuilder whereBuilder = fromBuilder.where();
+
+        params.getParameters().forEach((key, value) -> {
+            QueryExpressionKey expressionKey = new FilterExpressionKeyImpl(prefix, key);
+            Optional<QueryExpression> filterValue = dynamicQuery.getExpression(expressionKey);
+
+            filterValue.ifPresent(expression -> {
+                if (expression.isFeature()) {
+                    Boolean featureActive = params.getBoolean(key, false);
+
+                    if (featureActive) {
+                        whereBuilder.and(expression);
+                    }
+                } else {
+                    whereBuilder.and(expression);
+                }
+            });
+        });
+
+        OrderQueryBuilder orderBuilder = whereBuilder.order();
+
+        return orderBuilder.toString();
     }
 
     private String createCountQuery(DynamicQueryParams params, DynamicQuery dynamicQuery, String prefix) {

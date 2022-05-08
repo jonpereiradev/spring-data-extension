@@ -1,10 +1,10 @@
 package com.github.jonpereiradev.dynamic.jpa.internal.expression;
 
 
-import com.github.jonpereiradev.dynamic.jpa.repository.DynamicQueryMatchers;
+import com.github.jonpereiradev.dynamic.jpa.converter.NoneTypeConverter;
+import com.github.jonpereiradev.dynamic.jpa.converter.TypeConverter;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 
 /**
@@ -16,23 +16,27 @@ public final class QueryExpressionImpl implements QueryExpression {
     private final QueryExpressionKey key;
     private final String binding;
     private final String clause;
-    private final Function<Object, ?> matcher;
+    private final TypeConverter<?> converter;
     private final boolean feature;
 
-    public QueryExpressionImpl(QueryExpressionKey key, String clause, Function<Object, ?> matcher) {
+    private QueryExpressionImpl(QueryExpressionKey key, String clause, TypeConverter<?> converter, boolean feature) {
         this.key = key;
         this.binding = key.getValue().substring(key.getValue().lastIndexOf(".") + 1);
         this.clause = clause;
-        this.matcher = matcher;
-        this.feature = false;
+        this.converter = converter;
+        this.feature = feature;
+    }
+
+    public QueryExpressionImpl(QueryExpressionKey key, String clause, TypeConverter<?> converter) {
+        this(key, clause, converter, false);
     }
 
     public QueryExpressionImpl(QueryExpressionKey key, String clause, boolean feature) {
-        this.key = key;
-        this.binding = key.getValue().substring(key.getValue().lastIndexOf(".") + 1);
-        this.clause = clause;
-        this.matcher = DynamicQueryMatchers::toBoolean;
-        this.feature = feature;
+        this(key, clause, new NoneTypeConverter(), feature);
+    }
+
+    public QueryExpressionImpl(QueryExpressionKey key, String clause) {
+        this(key, clause, new NoneTypeConverter(), false);
     }
 
     @Override
@@ -56,8 +60,8 @@ public final class QueryExpressionImpl implements QueryExpression {
     }
 
     @Override
-    public Function<Object, ?> getMatcher() {
-        return matcher;
+    public TypeConverter<?> getConverter() {
+        return converter;
     }
 
     @Override

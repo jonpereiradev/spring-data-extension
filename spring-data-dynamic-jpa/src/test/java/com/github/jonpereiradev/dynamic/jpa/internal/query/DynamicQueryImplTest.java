@@ -31,7 +31,6 @@ class DynamicQueryImplTest {
         dynamicQuery = new DynamicQueryImpl(
             "select entity from Entity entity",
             "select count(entity.id) from Entity entity",
-            null,
             null
         );
     }

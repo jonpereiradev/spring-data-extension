@@ -8,13 +8,9 @@ import java.lang.reflect.Method;
 public interface DynamicQueryFactory {
 
     static DynamicQueryFactory newInstance(RepositoryMetadata metadata) {
-        return new DynamicQueryClassFactory(metadata);
+        return new DynamicQueryFactoryImpl(metadata);
     }
 
-    static DynamicQueryFactory newInstance(RepositoryMetadata metadata, Method method) {
-        return new DynamicQueryMethodFactory(metadata, method);
-    }
-
-    DynamicQuery newInstance();
+    DynamicQuery newInstance(Method method);
 
 }

@@ -19,7 +19,7 @@ public interface QueryInspectorResult {
         private final String entityName;
         private final String aliasName;
 
-        public FromInspected(String entityName, String aliasName) {
+        FromInspected(String entityName, String aliasName) {
             this.entityName = entityName;
             this.aliasName = aliasName;
         }

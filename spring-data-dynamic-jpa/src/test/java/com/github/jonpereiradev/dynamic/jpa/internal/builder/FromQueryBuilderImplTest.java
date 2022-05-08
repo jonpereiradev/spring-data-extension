@@ -6,7 +6,6 @@ import com.github.jonpereiradev.dynamic.jpa.internal.expression.QueryExpressionI
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspector;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorResult;
-import com.github.jonpereiradev.dynamic.jpa.repository.DynamicQueryMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,7 +46,7 @@ class FromQueryBuilderImplTest {
 
         @Test
         void must_create_join_query_from_expression() {
-            expression = new QueryExpressionImpl(new JoinExpressionKeyImpl("user"), "join entity.users default", DynamicQueryMatchers::none);
+            expression = new QueryExpressionImpl(new JoinExpressionKeyImpl("user"), "join entity.users default");
             result = inspector.inspect("");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
             String query = fromBuilder.join(expression).toString();
@@ -77,7 +76,7 @@ class FromQueryBuilderImplTest {
 
         @Test
         void must_create_inner_join_query_from_expression() {
-            expression = new QueryExpressionImpl(new JoinExpressionKeyImpl("user"), "inner join entity.users default", DynamicQueryMatchers::none);
+            expression = new QueryExpressionImpl(new JoinExpressionKeyImpl("user"), "inner join entity.users default");
             result = inspector.inspect("");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
             String query = fromBuilder.join(expression).toString();
@@ -107,7 +106,7 @@ class FromQueryBuilderImplTest {
 
         @Test
         void must_create_left_join_query_from_expression() {
-            expression = new QueryExpressionImpl(new JoinExpressionKeyImpl("user"), "left join entity.users default", DynamicQueryMatchers::none);
+            expression = new QueryExpressionImpl(new JoinExpressionKeyImpl("user"), "left join entity.users default");
             result = inspector.inspect("");
             fromBuilder = new FromQueryBuilderImpl(new StringBuilder(), result);
             String query = fromBuilder.join(expression).toString();

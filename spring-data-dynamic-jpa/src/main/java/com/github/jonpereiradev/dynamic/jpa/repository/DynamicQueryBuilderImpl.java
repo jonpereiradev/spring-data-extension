@@ -21,27 +21,27 @@ final class DynamicQueryBuilderImpl {
     private static final int INITIAL_QUERY_CAPACITY = 150;
 
     private final StringBuilder internal;
-    private final DynamicQuery queryValue;
+    private final DynamicQuery dynamicQuery;
 
-    DynamicQueryBuilderImpl(DynamicQuery queryValue) {
+    DynamicQueryBuilderImpl(DynamicQuery dynamicQuery) {
         this.internal = new StringBuilder(INITIAL_QUERY_CAPACITY);
-        this.queryValue = queryValue;
+        this.dynamicQuery = dynamicQuery;
     }
 
     DynamicQueryBuilderImpl select() {
-        internal.append(queryValue.getSelectQuery());
+        internal.append(dynamicQuery.getSelectQuery());
         return this;
     }
 
     DynamicQueryBuilderImpl count() {
-        internal.append(queryValue.getCountQuery());
+        internal.append(dynamicQuery.getCountQuery());
         return this;
     }
 
     DynamicQueryBuilderImpl join(DynamicQueryParams dynamicQuery) {
         dynamicQuery.getParameters().forEach((key, value) -> {
             QueryExpressionKey expressionKey = new JoinExpressionKeyImpl(key);
-            Optional<QueryExpression> joinValue = queryValue.getExpression(expressionKey);
+            Optional<QueryExpression> joinValue = this.dynamicQuery.getExpression(expressionKey);
             joinValue.ifPresent(query -> internal.append(BLANK_SPACE).append(query.getClause()));
         });
 
@@ -57,7 +57,7 @@ final class DynamicQueryBuilderImpl {
 
         params.getParameters().forEach((key, value) -> {
             QueryExpressionKey expressionKey = new FilterExpressionKeyImpl(prefix, key);
-            Optional<QueryExpression> filterValue = queryValue.getExpression(expressionKey);
+            Optional<QueryExpression> filterValue = dynamicQuery.getExpression(expressionKey);
             filterValue.ifPresent(query -> internal.append(BLANK_SPACE).append(query.getClause()));
         });
 
