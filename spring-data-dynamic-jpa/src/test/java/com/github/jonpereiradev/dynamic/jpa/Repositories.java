@@ -25,7 +25,7 @@ public class Repositories {
     }
 
     @Repository
-    @DynamicFilter(query = "and filter.id is not null", binding = "id")
+    @DynamicFilter(query = "and filter.id is not null", binding = "id", type = Boolean.class)
     public interface GlobalFeatureFilter extends DynamicJpaRepository<Integer, Entities.Any> {
     }
 

@@ -24,6 +24,6 @@ public @interface DynamicFilter {
      *
      * @return class type or class type converter.
      */
-    Class<?> type() default String.class;
+    Class<?> type();
 
 }

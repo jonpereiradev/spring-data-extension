@@ -54,10 +54,11 @@ final class DynamicQueryFactoryImpl implements DynamicQueryFactory {
         for (QueryExpression expression : joinFactory.createExpressions(method)) {
             if (logger.isDebugEnabled()) {
                 logger.debug(
-                    "{}: Mapped join expression as \"{}\" binding parameter \"{}\"",
+                    "{}: Mapped join expression as \"{}\" binding parameter \"{}\" type \"{}\"",
                     logKeyName,
                     expression.getClause(),
-                    expression.getBinding()
+                    expression.getBinding(),
+                    expression.getConverter().getClass().getName()
                 );
             }
 
@@ -71,12 +72,20 @@ final class DynamicQueryFactoryImpl implements DynamicQueryFactory {
         QueryExpressionFactory filterFactory = new QueryExpressionFilterFactory(metadata, reader);
 
         for (QueryExpression expression : filterFactory.createExpressions(method)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "{}: Mapped filter expression as \"{}\" binding parameter \"{}\"",
+            if (expression.getConverter() == null) {
+                logger.error(
+                    "{}: TypeConverter not found for expression \"{}\" binding parameter \"{}\"",
                     logKeyName,
                     expression.getClause(),
                     expression.getBinding()
+                );
+            } else if (logger.isDebugEnabled()) {
+                logger.debug(
+                    "{}: Mapped filter expression as \"{}\" binding parameter \"{}\" type \"{}\"",
+                    logKeyName,
+                    expression.getClause(),
+                    expression.getBinding(),
+                    expression.getConverter().getClass().getSimpleName()
                 );
             }
 

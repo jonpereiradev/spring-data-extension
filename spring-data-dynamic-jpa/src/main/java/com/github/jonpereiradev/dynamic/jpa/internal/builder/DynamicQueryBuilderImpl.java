@@ -82,6 +82,13 @@ final class DynamicQueryBuilderImpl implements DynamicQueryBuilder {
 
         if (!query.countQuery().isEmpty()) {
             result = inspector.inspect(query.countQuery());
+            internal.append("select");
+
+            for (String select : result.getSelect()) {
+                internal.append(" ").append(select);
+            }
+
+            return new SelectQueryBuilderImpl(new StringBuilder(internal), result);
         } else if (!query.value().isEmpty()) {
             result = inspector.inspect(query.value());
         } else {

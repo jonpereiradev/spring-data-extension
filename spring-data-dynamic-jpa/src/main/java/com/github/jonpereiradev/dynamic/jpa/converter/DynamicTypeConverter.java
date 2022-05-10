@@ -18,6 +18,8 @@ public final class DynamicTypeConverter {
     private static final Map<Class<?>, TypeConverter<?>> CONVERTERS = new HashMap<>();
 
     static {
+        CONVERTERS.put(char.class, new CharacterTypeConverter());
+        CONVERTERS.put(Character.class, new CharacterTypeConverter());
         CONVERTERS.put(String.class, new StringTypeConverter());
         CONVERTERS.put(short.class, new ShortTypeConverter());
         CONVERTERS.put(Short.class, new ShortTypeConverter());

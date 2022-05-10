@@ -70,7 +70,7 @@ class DynamicQueryBuilderImplTest {
     @Test
     void must_create_count_query_from_count_method() {
         String query = builder.count(countQuery).toString();
-        assertEquals("select count(entity.id)", query);
+        assertEquals("select count(distinct entity.id)", query);
     }
 
     @Test

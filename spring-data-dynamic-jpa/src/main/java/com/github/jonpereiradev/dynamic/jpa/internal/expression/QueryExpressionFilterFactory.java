@@ -3,6 +3,7 @@ package com.github.jonpereiradev.dynamic.jpa.internal.expression;
 
 import com.github.jonpereiradev.dynamic.jpa.internal.annotation.JpaAnnotation;
 import com.github.jonpereiradev.dynamic.jpa.internal.annotation.JpaAnnotationReader;
+import com.github.jonpereiradev.dynamic.jpa.internal.annotation.JpaAnnotationReaderFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspector;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorResult;
@@ -13,6 +14,7 @@ import com.github.jonpereiradev.dynamic.jpa.converter.DynamicTypeConverter;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.core.RepositoryMetadata;
 
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
 import java.lang.reflect.Method;
@@ -63,8 +65,15 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
 
         for (final JpaAnnotation<?> jpaAnnotation : reader.findJpaAnnotations()) {
             if (jpaAnnotation.isAnnotation(JoinColumn.class)) {
-                query = "and " + alias + "." + jpaAnnotation.getName() + ".id = :" + jpaAnnotation.getName();
-                newExpression(expressions, method, query, jpaAnnotation);
+                String name = jpaAnnotation.getName();
+                Class<?> returnType = jpaAnnotation.getReturnType();
+                JpaAnnotationReader joinReader = new JpaAnnotationReaderFactory().createReader(returnType);
+                JpaAnnotation<Id> joinAnnotation = joinReader.findFirstNameOf(Id.class);
+
+                query = "and " + alias + "." + jpaAnnotation.getName() + "." + joinAnnotation.getName() + " = :" + jpaAnnotation.getName();
+
+                TypeConverter<?> typeConverter = DynamicTypeConverter.get(joinAnnotation.getReturnType());
+                expressions.add(newExpression(method.getName(), name, query, typeConverter));
             } else {
                 query = "and " + alias + "." + jpaAnnotation.getName() + " = :" + jpaAnnotation.getName();
                 newExpression(expressions, method, query, jpaAnnotation);
@@ -79,8 +88,7 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
     }
 
     private void newExpression(Set<QueryExpression> expressions, Method method, String query, JpaAnnotation<?> jpaAnnotation) {
-        String name;
-        name = jpaAnnotation.getName();
+        String name = jpaAnnotation.getName();
         TypeConverter<?> typeConverter = DynamicTypeConverter.get(jpaAnnotation.getReturnType());
         expressions.add(newExpression(method.getName(), name, query, typeConverter));
     }
