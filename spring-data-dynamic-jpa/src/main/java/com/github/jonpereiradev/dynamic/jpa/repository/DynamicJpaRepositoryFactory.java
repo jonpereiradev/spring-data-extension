@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.provider.PersistenceProvider;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.EscapeCharacter;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
@@ -95,8 +96,13 @@ final class DynamicJpaRepositoryFactory<T, ID extends Serializable> extends JpaR
         DynamicQuery dynamicQuery;
 
         try {
-            information.getRepositoryInterface().getDeclaredMethod(methodName, parameters);
-            dynamicQuery = null;
+            Method method = information.getRepositoryInterface().getDeclaredMethod(methodName, parameters);
+
+            if (method.isAnnotationPresent(Query.class)) {
+                dynamicQuery = null;
+            } else {
+                dynamicQuery = factory.newInstance(method);
+            }
         } catch (NoSuchMethodException e) {
             try {
                 Method method = DynamicJpaRepository.class.getDeclaredMethod(methodName, parameters);
