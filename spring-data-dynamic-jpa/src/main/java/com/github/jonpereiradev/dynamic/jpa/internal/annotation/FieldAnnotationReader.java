@@ -1,5 +1,7 @@
 package com.github.jonpereiradev.dynamic.jpa.internal.annotation;
 
+import com.github.jonpereiradev.dynamic.jpa.repository.AutoScanFilterDisabled;
+
 import javax.persistence.MappedSuperclass;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -19,11 +21,6 @@ class FieldAnnotationReader implements JpaAnnotationReader {
         return findFirstNameOf(entityClass, annotation);
     }
 
-    @Override
-    public <T extends Annotation> List<JpaAnnotation<T>> findJpaAnnotations() {
-        return findJpaAnnotations(entityClass, new ArrayList<>());
-    }
-
     private <T extends Annotation> JpaAnnotation<T> findFirstNameOf(Class<?> entityClass, Class<T> annotationClass) {
         for (Field field : entityClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(annotationClass)) {
@@ -38,9 +35,22 @@ class FieldAnnotationReader implements JpaAnnotationReader {
         return null;
     }
 
+    @Override
+    public <T extends Annotation> List<JpaAnnotation<T>> findJpaAnnotations() {
+        return findJpaAnnotations(entityClass, new ArrayList<>());
+    }
+
     @SuppressWarnings("unchecked")
-    public <T extends Annotation> List<JpaAnnotation<T>> findJpaAnnotations(Class<?> entityClass, List<JpaAnnotation<T>> jpaAnnotations) {
+    private <T extends Annotation> List<JpaAnnotation<T>> findJpaAnnotations(Class<?> entityClass, List<JpaAnnotation<T>> jpaAnnotations) {
+        if (entityClass.isAnnotationPresent(AutoScanFilterDisabled.class)) {
+            return jpaAnnotations;
+        }
+
         for (Field field : entityClass.getDeclaredFields()) {
+            if (field.isAnnotationPresent(AutoScanFilterDisabled.class)) {
+                continue;
+            }
+
             for (Annotation annotation : field.getAnnotations()) {
                 if (isJpaAnnotation(annotation)) {
                     jpaAnnotations.add(new JpaAnnotation<>(field, (T) annotation));

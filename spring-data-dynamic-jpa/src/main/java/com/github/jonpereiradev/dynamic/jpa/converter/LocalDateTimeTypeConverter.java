@@ -3,7 +3,7 @@ package com.github.jonpereiradev.dynamic.jpa.converter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class LocalDateTimeTypeConverter implements TypeConverter<LocalDateTime> {
+final class LocalDateTimeTypeConverter implements TypeConverter<LocalDateTime> {
 
     @Override
     public LocalDateTime convertValue(String value) {

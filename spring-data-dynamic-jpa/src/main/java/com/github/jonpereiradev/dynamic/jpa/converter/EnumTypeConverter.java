@@ -2,7 +2,7 @@ package com.github.jonpereiradev.dynamic.jpa.converter;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class EnumTypeConverter<T extends Enum<T>> implements TypeConverter<T> {
+final class EnumTypeConverter<T extends Enum<T>> implements TypeConverter<T> {
 
     private final Class<?> enumClass;
 

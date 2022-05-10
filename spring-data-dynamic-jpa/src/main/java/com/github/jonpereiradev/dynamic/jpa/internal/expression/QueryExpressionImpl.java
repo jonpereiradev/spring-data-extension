@@ -1,7 +1,7 @@
 package com.github.jonpereiradev.dynamic.jpa.internal.expression;
 
 
-import com.github.jonpereiradev.dynamic.jpa.converter.BooleanTypeConverter;
+import com.github.jonpereiradev.dynamic.jpa.converter.DynamicTypeConverter;
 import com.github.jonpereiradev.dynamic.jpa.converter.NoneTypeConverter;
 import com.github.jonpereiradev.dynamic.jpa.converter.TypeConverter;
 
@@ -33,7 +33,7 @@ public final class QueryExpressionImpl implements QueryExpression {
     }
 
     QueryExpressionImpl(QueryExpressionKey key, String clause, boolean feature) {
-        this(key, clause, feature ? new BooleanTypeConverter() : new NoneTypeConverter(), feature);
+        this(key, clause, feature ? DynamicTypeConverter.get(Boolean.class) : new NoneTypeConverter(), feature);
     }
 
     public QueryExpressionImpl(QueryExpressionKey key, String clause) {

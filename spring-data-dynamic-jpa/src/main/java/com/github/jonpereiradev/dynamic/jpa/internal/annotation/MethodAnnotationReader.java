@@ -1,5 +1,7 @@
 package com.github.jonpereiradev.dynamic.jpa.internal.annotation;
 
+import com.github.jonpereiradev.dynamic.jpa.repository.AutoScanFilterDisabled;
+
 import javax.persistence.MappedSuperclass;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -19,11 +21,6 @@ class MethodAnnotationReader implements JpaAnnotationReader {
         return findFirstNameOf(entityClass, annotation);
     }
 
-    @Override
-    public <T extends Annotation> List<JpaAnnotation<T>> findJpaAnnotations() {
-        return getJpaAnnotations(entityClass, new ArrayList<>());
-    }
-
     private <T extends Annotation> JpaAnnotation<T> findFirstNameOf(Class<?> entityClass, Class<T> annotationClass) {
         for (Method method : entityClass.getDeclaredMethods()) {
             if (method.isAnnotationPresent(annotationClass)) {
@@ -40,9 +37,18 @@ class MethodAnnotationReader implements JpaAnnotationReader {
         return null;
     }
 
+    @Override
+    public <T extends Annotation> List<JpaAnnotation<T>> findJpaAnnotations() {
+        return getJpaAnnotations(entityClass, new ArrayList<>());
+    }
+
     @SuppressWarnings("unchecked")
     private <T extends Annotation> List<JpaAnnotation<T>> getJpaAnnotations(Class<?> entityClass, List<JpaAnnotation<T>> jpaAnnotations) {
         for (Method method : entityClass.getDeclaredMethods()) {
+            if (method.isAnnotationPresent(AutoScanFilterDisabled.class)) {
+                continue;
+            }
+
             for (Annotation annotation : method.getAnnotations()) {
                 if (isJpaAnnotation(annotation)) {
                     jpaAnnotations.add(new JpaAnnotation<>(method, (T) annotation));

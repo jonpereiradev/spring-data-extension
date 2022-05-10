@@ -7,7 +7,8 @@ import java.util.List;
 public interface JpaAnnotationReader {
 
     default boolean isJpaAnnotation(Annotation annotation) {
-        return annotation.annotationType().getPackage().getName().startsWith("javax.persistence") && !annotation.annotationType().equals(Transient.class);
+        return annotation.annotationType().getPackage().getName().startsWith("javax.persistence")
+            && !annotation.annotationType().equals(Transient.class);
     }
 
     <T extends Annotation> JpaAnnotation<T> findFirstNameOf(Class<T> annotation);

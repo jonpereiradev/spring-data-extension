@@ -1,6 +1,6 @@
 package com.github.jonpereiradev.dynamic.jpa.converter;
 
-public class LongTypeConverter implements TypeConverter<Long> {
+final class LongTypeConverter implements TypeConverter<Long> {
 
     @Override
     public Long convertValue(String value) {
