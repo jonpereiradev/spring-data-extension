@@ -1,6 +1,9 @@
 package com.github.jonpereiradev.dynamic.jpa.repository;
 
 
+import com.github.jonpereiradev.dynamic.jpa.converter.AutodetectTypeConverter;
+import com.github.jonpereiradev.dynamic.jpa.converter.TypeConverter;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
@@ -19,11 +22,8 @@ public @interface DynamicFilter {
 
     String binding();
 
-    /**
-     * It can be used to specify a type like String.class or Long.class, or it can be used to define a TypeConverter implementation.
-     *
-     * @return class type or class type converter.
-     */
-    Class<?> type();
+    Class<?> type() default Void.class;
+
+    Class<? extends TypeConverter<?>> converter() default AutodetectTypeConverter.class;
 
 }

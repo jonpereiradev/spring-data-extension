@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("SpellCheckingInspection")
 class DynamicQueryBuilderImplTest {
 
     private QueryInspector inspector;

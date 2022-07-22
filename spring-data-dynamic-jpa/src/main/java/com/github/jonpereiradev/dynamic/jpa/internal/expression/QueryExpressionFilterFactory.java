@@ -1,6 +1,7 @@
 package com.github.jonpereiradev.dynamic.jpa.internal.expression;
 
 
+import com.github.jonpereiradev.dynamic.jpa.converter.AutodetectTypeConverter;
 import com.github.jonpereiradev.dynamic.jpa.converter.DynamicTypeConverter;
 import com.github.jonpereiradev.dynamic.jpa.converter.TypeConverter;
 import com.github.jonpereiradev.dynamic.jpa.internal.annotation.JpaAnnotation;
@@ -9,9 +10,11 @@ import com.github.jonpereiradev.dynamic.jpa.internal.annotation.JpaAnnotationRea
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspector;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorFactory;
 import com.github.jonpereiradev.dynamic.jpa.internal.inspector.QueryInspectorResult;
-import com.github.jonpereiradev.dynamic.jpa.repository.AutoScanFilterDisabled;
+import com.github.jonpereiradev.dynamic.jpa.repository.AutoScanDisabled;
 import com.github.jonpereiradev.dynamic.jpa.repository.DynamicFilter;
 import com.github.jonpereiradev.dynamic.jpa.repository.DynamicFilters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.core.RepositoryMetadata;
 
@@ -28,6 +31,8 @@ import java.util.regex.Pattern;
 public final class QueryExpressionFilterFactory implements QueryExpressionFactory {
 
     private static final Pattern ALIAS_PATTERN = Pattern.compile(".*(?:\\s|\\()(\\w+)\\.\\w+.*");
+
+    private final Logger logger = LoggerFactory.getLogger(QueryExpressionFilterFactory.class);
 
     private final Class<?> entityClass;
     private final Class<?> repositoryInterface;
@@ -57,6 +62,11 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
         readRepositoryFilters(expressions, repositoryInterface, aliasName, method);
 
         for (DynamicFilter annotation : method.getAnnotationsByType(DynamicFilter.class)) {
+            if (isAnnotationInvalid(annotation)) {
+                logAnnotationInvalid(repositoryInterface, method, annotation);
+                continue;
+            }
+
             QueryExpression queryExpression = createQueryExpression(annotation, null, method);
             expressions.remove(queryExpression);
             expressions.add(queryExpression);
@@ -66,7 +76,7 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
     }
 
     private boolean isAutoScanDisabled(Method method) {
-        return repositoryInterface.isAnnotationPresent(AutoScanFilterDisabled.class) || method.isAnnotationPresent(AutoScanFilterDisabled.class);
+        return repositoryInterface.isAnnotationPresent(AutoScanDisabled.class) || method.isAnnotationPresent(AutoScanDisabled.class);
     }
 
     private void readReflectionFilters(Set<QueryExpression> expressions, Class<?> entityClass, String aliasName, Method method) {
@@ -105,6 +115,11 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
     private void readRepositoryFilters(Set<QueryExpression> expressions, Class<?> repositoryInterface, String aliasName, Method method) {
         if (isDynamicFilter(repositoryInterface)) {
             for (DynamicFilter annotation : repositoryInterface.getAnnotationsByType(DynamicFilter.class)) {
+                if (isAnnotationInvalid(annotation)) {
+                    logAnnotationInvalid(repositoryInterface, method, annotation);
+                    continue;
+                }
+
                 QueryExpression expression = createQueryExpression(annotation, aliasName, method);
 
                 expressions.remove(expression);
@@ -117,6 +132,20 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
                 readRepositoryFilters(expressions, anInterface, aliasName, method);
             }
         }
+    }
+
+    private void logAnnotationInvalid(Class<?> repositoryInterface, Method method, DynamicFilter annotation) {
+        String logKeyName = repositoryInterface.getSimpleName() + "." + method.getName();
+
+        logger.warn(
+            "{}: Ignoring @DynamicFilter without a type and converter with expression: \"{}\"",
+            logKeyName,
+            annotation.query()
+        );
+    }
+
+    private boolean isAnnotationInvalid(DynamicFilter annotation) {
+        return annotation.type().equals(Void.class) && annotation.converter().equals(AutodetectTypeConverter.class);
     }
 
     private QueryExpression createQueryExpression(DynamicFilter annotation, String alias, Method method) {
@@ -137,7 +166,13 @@ public final class QueryExpressionFilterFactory implements QueryExpressionFactor
         if (!annotation.query().contains(":")) {
             queryExpression = newFeature(method.getName(), name, query);
         } else {
-            TypeConverter<?> typeConverter = DynamicTypeConverter.get(annotation.type());
+            Class<?> typeClass = annotation.converter();
+
+            if (AutodetectTypeConverter.class.equals(typeClass)) {
+                typeClass = annotation.type();
+            }
+
+            TypeConverter<?> typeConverter = DynamicTypeConverter.get(typeClass);
             queryExpression = newExpression(method.getName(), name, query, typeConverter);
         }
 

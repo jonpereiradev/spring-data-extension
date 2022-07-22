@@ -1,6 +1,6 @@
 package com.github.jonpereiradev.dynamic.jpa.converter;
 
-final class CharacterTypeConverter implements TypeConverter<Character> {
+public final class CharacterTypeConverter implements TypeConverter<Character> {
 
     @Override
     public Character convertValue(String value) {

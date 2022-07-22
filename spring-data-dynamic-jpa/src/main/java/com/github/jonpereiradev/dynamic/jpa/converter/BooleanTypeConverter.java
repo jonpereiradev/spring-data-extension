@@ -1,6 +1,6 @@
 package com.github.jonpereiradev.dynamic.jpa.converter;
 
-final class BooleanTypeConverter implements TypeConverter<Boolean> {
+public final class BooleanTypeConverter implements TypeConverter<Boolean> {
 
     @Override
     public Boolean convertValue(String value) {

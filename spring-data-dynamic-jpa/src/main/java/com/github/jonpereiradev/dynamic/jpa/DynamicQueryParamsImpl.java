@@ -19,7 +19,7 @@ import static com.github.jonpereiradev.dynamic.jpa.converter.DynamicTypeConverte
 
 class DynamicQueryParamsImpl implements DynamicQueryParams {
 
-    private MultiValueMap<String, Object> parameters;
+    private final MultiValueMap<String, Object> parameters;
 
     private Pageable pageable;
     private Sort sort;

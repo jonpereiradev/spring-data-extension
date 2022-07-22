@@ -9,8 +9,7 @@ import java.util.Objects;
 
 
 /**
- * Interface para integrar com o QueryBuilder, onde permite o mapeamento de restrições por uma chave e expressão de
- * SQL.
+ * Interface to integrate with the QueryBuilder, where it allows the mapping of restrictions by key and SQL expression.
  */
 public final class QueryExpressionImpl implements QueryExpression {
 

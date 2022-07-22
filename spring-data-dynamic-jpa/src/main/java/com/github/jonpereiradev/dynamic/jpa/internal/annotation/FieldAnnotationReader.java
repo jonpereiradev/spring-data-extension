@@ -1,6 +1,6 @@
 package com.github.jonpereiradev.dynamic.jpa.internal.annotation;
 
-import com.github.jonpereiradev.dynamic.jpa.repository.AutoScanFilterDisabled;
+import com.github.jonpereiradev.dynamic.jpa.repository.AutoScanDisabled;
 
 import javax.persistence.MappedSuperclass;
 import java.lang.annotation.Annotation;
@@ -42,12 +42,12 @@ class FieldAnnotationReader implements JpaAnnotationReader {
 
     @SuppressWarnings("unchecked")
     private <T extends Annotation> List<JpaAnnotation<T>> findJpaAnnotations(Class<?> entityClass, List<JpaAnnotation<T>> jpaAnnotations) {
-        if (entityClass.isAnnotationPresent(AutoScanFilterDisabled.class)) {
+        if (entityClass.isAnnotationPresent(AutoScanDisabled.class)) {
             return jpaAnnotations;
         }
 
         for (Field field : entityClass.getDeclaredFields()) {
-            if (field.isAnnotationPresent(AutoScanFilterDisabled.class)) {
+            if (field.isAnnotationPresent(AutoScanDisabled.class)) {
                 continue;
             }
 

@@ -40,19 +40,14 @@ public class DynamicJpaRepositoryValidator {
     public boolean isDynamicMethodParametersValid(Method method) {
         Class<?>[] parameters = method.getParameterTypes();
 
-        if (parameters.length == 0 || parameters.length > 2
-            || isInvalidParameterClass(parameters, DynamicQueryParams.class)
-            || isInvalidParameterClass(parameters, DynamicQueryParams.class, Pageable.class)
-        ) {
-            return false;
-        }
-
-        return true;
+        return parameters.length != 0 && parameters.length <= 2
+            && isValidParameterClass(parameters, DynamicQueryParams.class)
+            && isValidParameterClass(parameters, DynamicQueryParams.class, Pageable.class);
     }
 
-    private boolean isInvalidParameterClass(Class<?>[] classes, Class<?>... validClasses) {
+    private boolean isValidParameterClass(Class<?>[] classes, Class<?>... validClasses) {
         if (validClasses.length != classes.length) {
-            return false;
+            return true;
         }
 
         boolean isAnyClass = true;
@@ -64,7 +59,7 @@ public class DynamicJpaRepositoryValidator {
             }
         }
 
-        return !isAnyClass;
+        return isAnyClass;
     }
 
 }

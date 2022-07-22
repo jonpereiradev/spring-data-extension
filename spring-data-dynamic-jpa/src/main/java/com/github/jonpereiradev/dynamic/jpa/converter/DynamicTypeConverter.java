@@ -33,9 +33,11 @@ public final class DynamicTypeConverter {
         CONVERTERS.put(UUID.class, new UUIDTypeConverter());
         CONVERTERS.put(BigInteger.class, new BigIntegerTypeConverter());
         CONVERTERS.put(BigDecimal.class, new BigDecimalTypeConverter());
+        CONVERTERS.put(Void.class, new NoneTypeConverter());
+        CONVERTERS.put(AutodetectTypeConverter.class, new NoneTypeConverter());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static <T> TypeConverter<T> get(Class<T> clazz) {
         if (CONVERTERS.containsKey(clazz)) {
             return (TypeConverter<T>) CONVERTERS.get(clazz);
@@ -45,7 +47,12 @@ public final class DynamicTypeConverter {
             CONVERTERS.put(clazz, new EnumTypeConverter(clazz));
         }
 
-        if (TypeConverter.class.isAssignableFrom(clazz) && !CONVERTERS.containsKey(clazz)) {
+        if (!TypeConverter.class.isAssignableFrom(clazz)) {
+            CONVERTERS.put(clazz, new NoneTypeConverter());
+            return (TypeConverter<T>) CONVERTERS.get(clazz);
+        }
+
+        if (!CONVERTERS.containsKey(clazz)) {
             try {
                 Constructor<T> constructor = clazz.getConstructor();
                 TypeConverter<T> typeConverter = (TypeConverter<T>) constructor.newInstance();
